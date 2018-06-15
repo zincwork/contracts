@@ -1,4 +1,4 @@
-# Stack Spike
+# MVP Blockchain
 
 This project uses [yarn][yarn] to manage project dependencies.
 
@@ -14,21 +14,14 @@ Please install the following plugins for your IDE:
 
 ## Scripts
 
-| Command              | Description                                                                |
-| -------------------- | -------------------------------------------------------------------------- |
-| `yarn dev`           | Runs the server in development mode watching the source files for changes. |
-| `yarn build`         | Compiles the TypeScript source files into a `lib` directory.               |
-| `yarn start`         | Runs the server from the compiled JavaScript files in the `lib` directory. |
-| `yarn reset`         | Deletes the `lib` and `coverage` directories.                              |
-| `yarn test`          | Runs the test suite.                                                       |
-| `yarn test-watch`    | Runs the test suite in watch mode. Useful during development.              |
-| `yarn test-coverage` | Runs the test suite and produces a coverage report.                        |
-| `yarn lint`          | Lints the source TypeScript files using [TSLint][tslint].                  |
-| `yarn format`        | Formats all files using [Prettier][prettier].                              |
-
-When committing files to git, a `precommit` hook automatically runs the `format`, `lint` and `test` scripts.
-
-If any of these scripts fail, the commit will be rejected.
+| Command       | Description                                                    |
+| ------------- | -------------------------------------------------------------- |
+| `yarn test`   | Runs the test suite.                                           |
+| `yarn build`  | Compiles the Solidity source files into a `build` directory.   |
+| `yarn test`   | Compiles all TypeScript files and runs the truffle test suite. |
+| `yarn reset`  | Deletes the `build` directories and compiled `test.js` files.  |
+| `yarn lint`   | Lints the source TypeScript files using [TSLint][tslint].      |
+| `yarn format` | Formats all files using [Prettier][prettier].                  |
 
 [prettier]: https://prettier.io
 [tslint]: https://palantir.github.io/tslint
