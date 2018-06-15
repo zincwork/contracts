@@ -20,10 +20,10 @@ jobs:
             - ./node_modules
       - run:
           name: yarn-format
-          command: yarn format-diff
+          command: yarn format
       - run:
           name: yarn-lint
-          command: yarn lint-diff
+          command: yarn lint
       - run:
           name: yarn-build
           command: yarn build
