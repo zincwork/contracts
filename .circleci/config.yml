@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/test
+    docker:
+      - image: circleci/node:8.11.1
+    steps:
+      - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: yarn-install
+          command: yarn install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: yarn-format
+          command: yarn format-diff
+      - run:
+          name: yarn-lint
+          command: yarn lint-diff
+      - run:
+          name: yarn-build
+          command: yarn build
+      - store_artifacts:
+          path: ./build
+
