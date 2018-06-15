@@ -6,6 +6,8 @@ declare function contract(
   test: (accounts: string[]) => void
 ): void
 
+declare function it(name: string, test: (accounts: string[]) => void): void
+
 declare const artifacts: Iartifacts
 
 interface Iartifacts {
