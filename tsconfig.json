@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    // "outDir": "lib",
     "module": "commonjs",
     "noEmitOnError": true,
     "noImplicitAny": true,
