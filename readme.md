@@ -17,7 +17,7 @@ Please install the following plugins for your IDE:
 | Command       | Description                                                    |
 | ------------- | -------------------------------------------------------------- |
 | `yarn test`   | Runs the test suite.                                           |
-| `yarn build`  | Compiles the Solidity source files into a `build` directory.   |
+| `yarn build`  | Compiles the Solidity source files into JSON (ABI) located in a `build` directory.   |
 | `yarn test`   | Compiles all TypeScript files and runs the truffle test suite. |
 | `yarn reset`  | Deletes the `build` directories and compiled `test.js` files.  |
 | `yarn lint`   | Lints the source TypeScript files using [TSLint][tslint].      |
