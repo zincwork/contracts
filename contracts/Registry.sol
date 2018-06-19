@@ -39,6 +39,22 @@ contract Registry is Ownable {
         emit ClaimSet(subject, issuer, id, key, data, now);
     }
 
+    function amendClaim(
+        address subject,
+        address newIssuer,
+        address oldIssuer,
+        bytes32 id,
+        bytes32 key
+    ) public {
+        require(msg.sender == owner);
+        registry[subject][newIssuer][id][key] = registry[subject][oldIssuer][id][key];
+        delete registry[subject][oldIssuer][id][key];
+
+        bytes32 data = registry[subject][newIssuer][id][key];
+        emit ClaimRemoved(subject, oldIssuer, id, key, now);
+        emit ClaimSet(subject, newIssuer, id, key, data, now);
+    }
+
     function getClaim(
         address subject,
         address issuer,
