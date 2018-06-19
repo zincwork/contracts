@@ -209,7 +209,13 @@ contract("Registry", (accounts) => {
       gas: 1000000
     })
     const remove = await registry.amendClaim(subject, issuer2, issuer, id, key)
-    const cost = await registry.amendClaim.estimateGas(subject, issuer2, issuer, id, key)
+    const cost = await registry.amendClaim.estimateGas(
+      subject,
+      issuer2,
+      issuer,
+      id,
+      key
+    )
 
     // check that appropriate events have been fired
     assert.deepEqual(remove.logs[0].args, {
@@ -235,10 +241,12 @@ contract("Registry", (accounts) => {
     await registry.setClaim(subject, issuer, id, key, data, {
       gas: 1000000
     })
-    await registry.amendClaim(subject, issuer2, issuer, id, key, {
-      gas: 1000000,
-      from: issuer
-    }).then(assert.fail)
+    await registry
+      .amendClaim(subject, issuer2, issuer, id, key, {
+        gas: 1000000,
+        from: issuer
+      })
+      .then(assert.fail)
       .catch((error: any) => {
         assert.include(
           error.message,
