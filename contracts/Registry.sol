@@ -45,8 +45,7 @@ contract Registry is Ownable {
         address oldIssuer,
         bytes32 id,
         bytes32 key
-    ) public {
-        require(msg.sender == owner);
+    ) public onlyOwner {
         registry[subject][newIssuer][id][key] = registry[subject][oldIssuer][id][key];
         delete registry[subject][oldIssuer][id][key];
 
