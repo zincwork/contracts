@@ -7,32 +7,32 @@ contract Registry is Ownable {
 
     mapping(address =>
     mapping(address =>
-    mapping(bytes32 =>
-    mapping(bytes32 => bytes32)))) registry;
+    mapping(string =>
+    mapping(uint8 => string)))) registry;
 
     event ClaimSet(
         address indexed subject,
         address indexed issuer,
-        bytes32 indexed id,
-        bytes32 key,
-        bytes32 data,
+        string indexed id,
+        uint8 key,
+        string data,
         uint updatedAt
     );
 
     event ClaimRemoved(
         address indexed subject,
         address indexed issuer,
-        bytes32 indexed id,
-        bytes32 key,
+        string indexed id,
+        uint8 key,
         uint removedAt
     );
 
     function setClaim(
         address subject,
         address issuer,
-        bytes32 id,
-        bytes32 key,
-        bytes32 data
+        string id,
+        uint8 key,
+        string data
     ) public {
         require(msg.sender == issuer || msg.sender == owner);
         registry[subject][issuer][id][key] = data;
@@ -42,18 +42,18 @@ contract Registry is Ownable {
     function getClaim(
         address subject,
         address issuer,
-        bytes32 id,
-        bytes32 key
+        string id,
+        uint8 key
     )
-    public view returns(bytes32) {
+    public view returns(string) {
         return registry[subject][issuer][id][key];
     }
 
     function removeClaim(
         address subject,
         address issuer,
-        bytes32 id,
-        bytes32 key
+        string id,
+        uint8 key
     ) public {
         require(
             msg.sender == subject || msg.sender == issuer || msg.sender == owner
