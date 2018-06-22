@@ -1,6 +1,8 @@
 node_modules
 coverage
 lib
+build
+test/Registry.test.js
 
 *.DS_Store
 *.log
