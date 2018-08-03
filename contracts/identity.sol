@@ -16,16 +16,21 @@ contract Identity {
         emit AccessorAdded(msg.sender, MANAGEMENT);
     }
 
-    modifier allowedByPurpose(uint256 purpose, uint256 newPurpose) {
-        require(accessorMap[msg.sender] >= purpose && newPurpose >= READ_ONLY && newPurpose <= MANAGEMENT);
+    modifier allowedByPurpose(uint256 purpose) {
+        require(accessorMap[msg.sender] >= purpose, "Not authorized");
         _;
     }
 
-    function getAccessorPermissions(address key) public view returns(uint256) {
+    modifier checkPurpose(uint256 purpose) {
+        require(purpose >= READ_ONLY && purpose <= MANAGEMENT, "Invalid purpose");
+        _;
+    }
+
+    function getAccessorPurpose(address key) public view returns(uint256) {
         return accessorMap[key];
     }
 
-    function addAccessor(address key, uint256 purpose) public allowedByPurpose(MANAGEMENT, purpose) {
+    function addAccessor(address key, uint256 purpose) public allowedByPurpose(MANAGEMENT) checkPurpose(purpose) {
         uint256 oldPurpose = accessorMap[key];
         if (oldPurpose > 0) {
             emit AccessorRemoved(key, oldPurpose);
@@ -34,7 +39,7 @@ contract Identity {
         emit AccessorAdded(key, purpose);
     }
 
-    function removeAccessor(address key) public allowedByPurpose(MANAGEMENT, purpose) {
+    function removeAccessor(address key) public allowedByPurpose(MANAGEMENT) checkPurpose(purpose)  {
         uint256 purpose = accessorMap[key];
         delete accessorMap[key];
         emit AccessorRemoved(key, purpose);
