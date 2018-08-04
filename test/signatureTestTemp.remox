@@ -1,0 +1,17 @@
+ /**
+
+Place the test in SignatureValidator contract to test it returns the right value.
+ */
+
+    function testNow() public pure returns (address) {
+        return checkSignature(
+                    'Hi, user! Please sign this message so that we can verify you have the private key to this address',
+                            1337,
+                            'string message',
+                            'uint32 A random nonce to prevent this signed message being used twice',
+                            0xf281bdfc9eea4e0ae3b6ea76da8421f9635b9ccf3483ca82de417257cc418fc2,
+                            0x196d6fdd223e0e9cea20f99a9886babb1e087f6a449815869c0b7924fe59e041,
+                            27
+        );
+
+    }
