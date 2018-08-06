@@ -12,8 +12,11 @@ contract Identity {
 
     mapping(address => uint8) accessorMap;
 
-    constructor(address initialAccessor) public {
-        accessorMap[initialAccessor] = MANAGEMENT;
+    constructor(address[] initialAccessors) public {
+        uint arrayLength = initialAccessors.length;
+        for(uint i = 0; i < arrayLength; i++) {
+            accessorMap[initialAccessors[i]] = MANAGEMENT;
+        }
         emit AccessorAdded(msg.sender, MANAGEMENT);
     }
 
