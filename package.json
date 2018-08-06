@@ -9,7 +9,7 @@
     "test": "tsc && truffle test && rimraf test/*.js",
     "lint": "tslint --format codeFrame --fix '{test,contracts}/**/*.ts'",
     "format": "prettier '*.{js,json,md}' '{test,contracts}/**/*.ts' --write",
-    "precommit": "npm run format && npm run lint && npm run test"
+    "precommit": "yarn format && yarn lint && yarn test"
   },
   "dependencies": {
     "@types/chai": "^4.1.4",
