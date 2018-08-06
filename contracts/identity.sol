@@ -1,6 +1,10 @@
 pragma solidity ^0.4.24;
 
-// TODO: make payable
+contract ERC20Basic {
+    function balanceOf(address _who) public constant returns (uint256);
+    function transfer(address _to, uint256 _value) public returns (bool);
+}
+
 contract Identity {
     uint8 constant MANAGEMENT = 3;
     uint8 constant READ_WRITE = 2;
@@ -12,41 +16,78 @@ contract Identity {
 
     mapping(address => uint8) accessorMap;
 
-    constructor(address[] initialAccessors) public {
-        uint arrayLength = initialAccessors.length;
+    constructor(address[] _initialAccessors) public {
+        uint arrayLength = _initialAccessors.length;
         for(uint i = 0; i < arrayLength; i++) {
-            accessorMap[initialAccessors[i]] = MANAGEMENT;
-            emit AccessorAdded(initialAccessors[i], MANAGEMENT);
+            accessorMap[_initialAccessors[i]] = MANAGEMENT;
+            emit AccessorAdded(_initialAccessors[i], MANAGEMENT);
         }
     }
 
-    modifier allowedByPurpose(uint8 purpose) {
-        require(accessorMap[msg.sender] >= purpose, "Not authorized");
+    modifier allowedByPurpose(uint8 _purpose) {
+        require(accessorMap[msg.sender] >= _purpose, "Not authorized");
         _;
     }
 
-    modifier checkPurpose(uint8 purpose) {
-        require(purpose >= READ_ONLY && purpose <= MANAGEMENT, "Invalid purpose");
+    modifier checkPurpose(uint8 _purpose) {
+        require(_purpose >= READ_ONLY && _purpose <= MANAGEMENT, "Invalid purpose");
         _;
     }
 
-    function getAccessorPurpose(address key) public view returns(uint8) {
-        return accessorMap[key];
+    function getAccessorPurpose(address _key) public view returns(uint8) {
+        return accessorMap[_key];
     }
 
-    function addAccessor(address key, uint8 purpose) public allowedByPurpose(MANAGEMENT) checkPurpose(purpose) {
-        uint8 oldPurpose = accessorMap[key];
-        accessorMap[key] = purpose;
+    function addAccessor(address _key, uint8 _purpose) public allowedByPurpose(MANAGEMENT) checkPurpose(_purpose) {
+        uint8 oldPurpose = accessorMap[_key];
+        accessorMap[_key] = _purpose;
         if (oldPurpose != 0) {
-            emit AccessorUpdated(key, oldPurpose, purpose);
+            emit AccessorUpdated(_key, oldPurpose, _purpose);
         } else {
-            emit AccessorAdded(key, purpose);
+            emit AccessorAdded(_key, _purpose);
         }
     }
 
-    function removeAccessor(address key) public allowedByPurpose(MANAGEMENT) checkPurpose(purpose)  {
-        uint8 purpose = accessorMap[key];
-        delete accessorMap[key];
-        emit AccessorRemoved(key, purpose);
+    function removeAccessor(address _key) public allowedByPurpose(MANAGEMENT) {
+        uint8 purpose = accessorMap[_key];
+        delete accessorMap[_key];
+        emit AccessorRemoved(_key, purpose);
     }
+
+    function withdraw() public allowedByPurpose(MANAGEMENT) {
+        msg.sender.transfer(address(this).balance);
+    }
+
+    function transferEth(uint _amount, address _account) allowedByPurpose(MANAGEMENT) public {
+        require(_amount <= address(this).balance, "Amount should be less than total balance of the contract");
+        require(_account != address(0), "must be valid address");
+        _account.transfer(_amount);
+    }
+
+    function getBalance() public view returns(uint)  {
+        return address(this).balance;
+    }
+
+    function getTokenBalance(address _token) public view returns (uint) {
+        return ERC20Basic(_token).balanceOf(this);
+    }
+
+    function withdrawTokens(address _token) public allowedByPurpose(MANAGEMENT) {
+        require(_token != address(0));
+        ERC20Basic token = ERC20Basic(_token);
+        uint balance = token.balanceOf(this);
+        // token returns true on successful transfer
+        assert(token.transfer(msg.sender, balance));
+    }
+
+    function transferTokens(address _token, address _to, uint _amount) public allowedByPurpose(MANAGEMENT) {
+        require(_token != address(0));
+        require(_to != address(0));
+        ERC20Basic token = ERC20Basic(_token);
+        uint balance = token.balanceOf(this);
+        require(_amount <= balance);
+        assert(token.transfer(_to, _amount));
+    }
+
+    function () public payable {}
 }
