@@ -1,6 +1,11 @@
 pragma solidity ^0.4.24;
 
 // TODO: make payable
+contract ERC20Basic {
+    function balanceOf(address who) public constant returns (uint256);
+    function transfer(address to, uint256 value) public returns (bool);
+}
+
 contract Identity {
     uint8 constant MANAGEMENT = 3;
     uint8 constant READ_WRITE = 2;
@@ -49,4 +54,30 @@ contract Identity {
         delete accessorMap[key];
         emit AccessorRemoved(key, purpose);
     }
+
+    function withdrawAll() public allowedByPurpose(MANAGEMENT) {
+        msg.sender.transfer(address(this).balance);
+    }
+
+    function withdrawSpecified(uint amount) allowedByPurpose(MANAGEMENT) public {
+        require(amount <= address(this).balance, "Amount should be less than total balance of the contract");
+        msg.sender.transfer(amount);
+    }
+
+    function getBalance() public view returns(uint)  {
+        return address(this).balance;
+    }
+
+    function getTokenBalance(address _token) public view returns (uint) {
+        return ERC20Basic(_token).balanceOf(this);
+    }
+
+    function claimTokens(address _token) public allowedByPurpose(MANAGEMENT) {
+        require(_token != address(0));
+        ERC20Basic token = ERC20Basic(_token);
+        uint balance = token.balanceOf(this);
+        assert(token.transfer(msg.sender, balance));
+    }
+
+    function () public payable {}
 }
