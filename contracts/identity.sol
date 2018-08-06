@@ -72,7 +72,7 @@ contract Identity {
         return ERC20Basic(_token).balanceOf(this);
     }
 
-    function sendAllTokens(address _token) public allowedByPurpose(MANAGEMENT) {
+    function withdraw(address _token) public allowedByPurpose(MANAGEMENT) {
         require(_token != address(0));
         ERC20Basic token = ERC20Basic(_token);
         uint balance = token.balanceOf(this);
