@@ -16,8 +16,8 @@ contract Identity {
         uint arrayLength = initialAccessors.length;
         for(uint i = 0; i < arrayLength; i++) {
             accessorMap[initialAccessors[i]] = MANAGEMENT;
+            emit AccessorAdded(initialAccessors[i], MANAGEMENT);
         }
-        emit AccessorAdded(msg.sender, MANAGEMENT);
     }
 
     modifier allowedByPurpose(uint8 purpose) {
