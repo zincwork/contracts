@@ -54,7 +54,7 @@ contract Identity {
         emit AccessorRemoved(_key, purpose);
     }
 
-    function sendEth() public allowedByPurpose(MANAGEMENT) {
+    function withdraw() public allowedByPurpose(MANAGEMENT) {
         msg.sender.transfer(address(this).balance);
     }
 
