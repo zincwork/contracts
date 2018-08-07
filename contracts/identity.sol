@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 contract ERC20Basic {
-    function balanceOf(address _who) public view returns (uint256);
+    function balanceOf(address _who) public constant returns (uint256);
     function transfer(address _to, uint256 _value) public returns (bool);
 }
 
@@ -9,7 +9,7 @@ contract Identity {
     uint8 constant ALL_PURPOSES = 15;
     uint8 constant FUNDS_MANAGEMENT = 8;
     uint8 constant KEY_MANAGEMENT = 4;
-    uint8 constant READ_WRITE = 2;
+    uint8 constant WRITE_ONLY = 2;
     uint8 constant READ_ONLY = 1;
 
     event AccessorAdded(address indexed key, uint8 indexed purpose);
