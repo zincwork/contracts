@@ -10,7 +10,7 @@ contract ZincAccessor is SignatureValidator {
 
     event UserIdentityCreated(address indexed userAddress, address indexed identityContractAddress);
     event AccessorAdded(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
-    event AccessorRemoved(address indexed identityContractAddress, address indexed keyAddress, uint8 purpose);
+    event AccessorRemoved(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
 
 
     function checkUserSignature(address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v) public pure returns (bool) {
