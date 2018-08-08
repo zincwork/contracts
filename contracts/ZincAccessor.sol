@@ -8,6 +8,11 @@ contract ZincAccessor is SignatureValidator {
 
     uint256 public nonce = 0;
 
+    event UserIdentityCreated(address indexed userAddress, address indexed identityContractAddress);
+    event AccessorAdded(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
+    event AccessorRemoved(address indexed identityContractAddress, address indexed keyAddress, uint8 purpose);
+
+
     function checkUserSignature(address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v) public pure returns (bool) {
         require(checkSignature(_message1, _nonce, _header1, _header2, _r, _s, _v) == _userAddress, "User signature must be the same as signed message");
         return true;
@@ -32,6 +37,9 @@ contract ZincAccessor is SignatureValidator {
         permissions[1] = 7;
 
         Identity id = new Identity(adresses, permissions);
+
+        emit UserIdentityCreated(_userAddress, address(id));
+
         return address(id);
     }
 
@@ -40,6 +48,7 @@ contract ZincAccessor is SignatureValidator {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
         Identity id = Identity(_idContract);
         id.addAccessor(_key, _purpose);
+        emit AccessorAdded(_idContract, _key, _purpose);
         return true;
     }
 
@@ -48,7 +57,9 @@ contract ZincAccessor is SignatureValidator {
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
         Identity id = Identity(_idContract);
+        uint8 acessorPurpose = id.getAccessorPurpose(_key);
         id.removeAccessor(_key);
+        emit AccessorRemoved(_idContract, _key, acessorPurpose);
         return true;
     }
 
