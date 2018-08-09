@@ -2,9 +2,10 @@
   "compilerOptions": {
     "module": "commonjs",
     "noEmitOnError": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
+    "target": "es6",
     "removeComments": true,
     "lib": ["dom", "es2017"],
     "pretty": true
