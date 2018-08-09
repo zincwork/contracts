@@ -19,6 +19,12 @@ jobs:
           paths:
             - ./node_modules
       - run:
+          name: yarn-format
+          command: yarn format
+      - run:
+          name: yarn-lint
+          command: yarn lint
+      - run:
           name: yarn-build
           command: yarn build
       - store_artifacts:
