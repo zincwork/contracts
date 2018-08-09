@@ -1,5 +1,0 @@
-{
-  "ext": "ts",
-  "watch": "server",
-  "exec": "ts-node server"
-}

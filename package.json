@@ -4,12 +4,9 @@
   "license": "MIT",
   "author": "George Bennett",
   "scripts": {
-    "build": "truffle compile && tsc && truffle test",
-    "reset": "rimraf build test/*.js",
-    "test": "tsc && truffle test && rimraf test/*.js",
-    "lint": "tslint --format codeFrame --fix '{test,contracts}/**/*.ts'",
-    "format": "prettier '*.{js,json,md}' '{test,contracts}/**/*.ts' --write",
-    "precommit": "yarn format && yarn lint && yarn test"
+    "build": "truffle compile",
+    "test": "truffle test",
+    "precommit": "yarn test"
   },
   "dependencies": {
     "@types/chai": "^4.1.4",
@@ -21,13 +18,6 @@
   "devDependencies": {
     "husky": "^0.14.3",
     "nodemon": "^1.17.4",
-    "prettier": "1.12.1",
-    "rimraf": "^2.6.2",
-    "ts-jest": "^22.4.6",
-    "ts-node": "^6.0.3",
-    "tslint": "^5.10.0",
-    "tslint-config-prettier": "^1.12.0",
-    "typechain": "^0.2.4",
-    "typescript": "^2.8.3"
+    "prettier": "1.12.1"
   }
 }
