@@ -28,6 +28,64 @@ interface ContractInstance {
   sendTransaction(options?: TransactionOptions): Promise<void>
 }
 
+export interface EncoderInstance extends ContractInstance {
+  encodeUInt: {
+    (uint: UInt, options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (uint: UInt, options?: TransactionOptions) => Promise<string>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  encodeAddress: {
+    (address: Address, options?: TransactionOptions): Promise<
+      Web3.TransactionReceipt
+    >
+    call: (address: Address, options?: TransactionOptions) => Promise<string>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  encodeString: {
+    (str: string, options?: TransactionOptions): Promise<
+      Web3.TransactionReceipt
+    >
+    call: (str: string, options?: TransactionOptions) => Promise<string>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+}
+
+export interface EncoderContract {
+  new: () => Promise<EncoderInstance>
+  deployed(): Promise<EncoderInstance>
+  at(address: string): EncoderInstance
+}
+
 export interface ERC20BasicInstance extends ContractInstance {
   balanceOf: {
     (who: Address, options?: TransactionOptions): Promise<
@@ -593,6 +651,21 @@ export interface SignatureValidatorContract {
 }
 
 export interface ZincAccessorInstance extends ContractInstance {
+  encodeUInt: {
+    (uint: UInt, options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (uint: UInt, options?: TransactionOptions) => Promise<string>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
   checkSignature: {
     (
       message1: string,
@@ -629,6 +702,40 @@ export interface ZincAccessorInstance extends ContractInstance {
   nonce: {
     (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
     call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  encodeAddress: {
+    (address: Address, options?: TransactionOptions): Promise<
+      Web3.TransactionReceipt
+    >
+    call: (address: Address, options?: TransactionOptions) => Promise<string>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  encodeString: {
+    (str: string, options?: TransactionOptions): Promise<
+      Web3.TransactionReceipt
+    >
+    call: (str: string, options?: TransactionOptions) => Promise<string>
     estimateGas: (
       subject: string,
       issuer: string,
@@ -806,6 +913,7 @@ declare interface TransactionMeta {
 }
 
 interface Artifacts {
+  require(name: "Encoder"): EncoderContract
   require(name: "ERC20Basic"): ERC20BasicContract
   require(name: "Identity"): IdentityContract
   require(name: "Migrations"): MigrationsContract
