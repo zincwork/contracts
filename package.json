@@ -8,7 +8,7 @@
     "reset": "rimraf build test/*.js",
     "test": "tsc && truffle test && rimraf test/*.js",
     "generate-types":
-      "ts-node generate-contacts-types.ts > truffle.d.ts && yarn format",
+      "truffle compile && ts-node generate-contacts-types.ts > truffle.d.ts && yarn format",
     "lint": "tslint --format codeFrame --fix '{test,contracts}/**/*.ts'",
     "format":
       "prettier '*.{js,json,md}' '{test,contracts}/**/*.ts' '*.ts' --write",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/chai": "^4.1.4",
+    "@types/node": "^10.5.7",
     "bignumber.js": "^7.2.1",
     "chai": "^4.1.2",
     "debug": "^3.1.0",
