@@ -1,6 +1,6 @@
-const assert = require("chai").assert
+import { assert } from "chai"
 
-const Registry = artifacts.require("../contracts/Registry.sol")
+const Registry = artifacts.require("Registry")
 
 const subject = "0x627306090abab3a6e1400e9345bc60c78a8bef57" // = accounts[0] = owner
 const issuer = "0xf17f52151ebef6c7334fad080c5704d77216b732" // = accounts[1]
@@ -51,7 +51,7 @@ contract("Registry", (accounts) => {
         { from: accounts[1], gas: 1000000 } // msg.sender = subject
       )
       .then(assert.fail)
-      .catch((error) => {
+      .catch((error: any) => {
         assert.include(
           error.message,
           "Exception while processing transaction: revert",
@@ -156,7 +156,7 @@ contract("Registry", (accounts) => {
     await registry
       .removeClaim(subject, issuer, id, key, { from: accounts[2] }) // msg.sender != issuer && != subject && != owner
       .then(assert.fail)
-      .catch((error) => {
+      .catch((error: any) => {
         assert.include(
           error.message,
           "Exception while processing transaction: revert",

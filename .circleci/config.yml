@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: update-npm
-          command: 'sudo npm install -g npm@latest'
+          command: "sudo npm install -g npm@latest"
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
@@ -19,8 +19,16 @@ jobs:
           paths:
             - ./node_modules
       - run:
+          name: yarn-format
+          command: yarn format
+      - run:
+          name: yarn-lint
+          command: yarn lint
+      - run:
+          name: yarn-test
+          command: yarn test
+      - run:
           name: yarn-build
           command: yarn build
       - store_artifacts:
           path: ./build
-

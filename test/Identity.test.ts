@@ -1,5 +1,6 @@
-const assert = require("chai").assert
-const IdentityContract = artifacts.require("../contracts/Identity.sol")
+import { assert } from "chai"
+
+const IdentityContract = artifacts.require("Identity")
 
 contract("Identity", (accounts) => {
   it("can create empty identity contract", async () => {
