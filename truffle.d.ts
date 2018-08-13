@@ -137,6 +137,82 @@ export interface ERC20BasicContract {
 }
 
 export interface IdentityInstance extends ContractInstance {
+  READ_ONLY: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  KEY_MANAGEMENT: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  ALL_PURPOSES: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  WRITE_ONLY: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  FUNDS_MANAGEMENT: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+
   getAccessorPurpose: {
     (key: Address, options?: TransactionOptions): Promise<
       Web3.TransactionReceipt
@@ -749,41 +825,6 @@ export interface ZincAccessorInstance extends ContractInstance {
     ) => number
   }
 
-  checkUserSignature: {
-    (
-      userAddress: Address,
-      message1: string,
-      nonce: UInt,
-      header1: string,
-      header2: string,
-      r: string,
-      s: string,
-      v: UInt,
-      options?: TransactionOptions
-    ): Promise<Web3.TransactionReceipt>
-    call: (
-      userAddress: Address,
-      message1: string,
-      nonce: UInt,
-      header1: string,
-      header2: string,
-      r: string,
-      s: string,
-      v: UInt,
-      options?: TransactionOptions
-    ) => Promise<boolean>
-    estimateGas: (
-      subject: string,
-      issuer: string,
-      id: string,
-      key: string,
-      data?: string,
-      options?: {
-        from?: string
-        gas?: number
-      }
-    ) => number
-  }
   constructUserIdentity: {
     (
       userAddress: Address,
