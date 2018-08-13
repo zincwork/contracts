@@ -541,6 +541,90 @@ export interface OwnableContract {
   at(address: string): OwnableInstance
 }
 
+export interface PurposesConstantsInstance extends ContractInstance {
+  READ_ONLY: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  KEY_MANAGEMENT: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  ALL_PURPOSES: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  WRITE_ONLY: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  FUNDS_MANAGEMENT: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+}
+
+export interface PurposesConstantsContract {
+  new: () => Promise<PurposesConstantsInstance>
+  deployed(): Promise<PurposesConstantsInstance>
+  at(address: string): PurposesConstantsInstance
+}
+
 export interface RegistryInstance extends ContractInstance {
   renounceOwnership: {
     (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
@@ -727,9 +811,39 @@ export interface SignatureValidatorContract {
 }
 
 export interface ZincAccessorInstance extends ContractInstance {
+  READ_ONLY: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
   encodeUInt: {
     (uint: UInt, options?: TransactionOptions): Promise<Web3.TransactionReceipt>
     call: (uint: UInt, options?: TransactionOptions) => Promise<string>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  KEY_MANAGEMENT: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
     estimateGas: (
       subject: string,
       issuer: string,
@@ -775,6 +889,21 @@ export interface ZincAccessorInstance extends ContractInstance {
       }
     ) => number
   }
+  ALL_PURPOSES: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
   nonce: {
     (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
     call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
@@ -795,6 +924,36 @@ export interface ZincAccessorInstance extends ContractInstance {
       Web3.TransactionReceipt
     >
     call: (address: Address, options?: TransactionOptions) => Promise<string>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  WRITE_ONLY: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
+    estimateGas: (
+      subject: string,
+      issuer: string,
+      id: string,
+      key: string,
+      data?: string,
+      options?: {
+        from?: string
+        gas?: number
+      }
+    ) => number
+  }
+  FUNDS_MANAGEMENT: {
+    (options?: TransactionOptions): Promise<Web3.TransactionReceipt>
+    call: (options?: TransactionOptions) => Promise<BigNumber.BigNumber>
     estimateGas: (
       subject: string,
       issuer: string,
@@ -959,6 +1118,7 @@ interface Artifacts {
   require(name: "Identity"): IdentityContract
   require(name: "Migrations"): MigrationsContract
   require(name: "Ownable"): OwnableContract
+  require(name: "PurposesConstants"): PurposesConstantsContract
   require(name: "Registry"): RegistryContract
   require(name: "SignatureValidator"): SignatureValidatorContract
   require(name: "ZincAccessor"): ZincAccessorContract

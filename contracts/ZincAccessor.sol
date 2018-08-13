@@ -12,7 +12,7 @@ import "./SignatureValidator.sol";
  * It can be upgraded with the user consent by adding a instance of a new version and removing the old one.
  */
 
-contract ZincAccessor is SignatureValidator, Encoder {
+contract ZincAccessor is SignatureValidator, Encoder, PurposesConstants {
 
     uint256 public nonce = 0;
 
@@ -73,8 +73,8 @@ contract ZincAccessor is SignatureValidator, Encoder {
         adresses[1] = address(this);
 
         uint8[] memory permissions = new uint8[](2);
-        permissions[0] = 15;
-        permissions[1] = 7;
+        permissions[0] = ALL_PURPOSES;
+        permissions[1] = KEY_MANAGEMENT;
 
         Identity id = new Identity(adresses, permissions);
 

@@ -5,6 +5,14 @@ contract ERC20Basic {
     function transfer(address _to, uint256 _value) public returns (bool);
 }
 
+contract PurposesConstants {
+    uint8 constant public FUNDS_MANAGEMENT = 8;
+    uint8 constant public KEY_MANAGEMENT = 4;
+    uint8 constant public WRITE_ONLY = 2;
+    uint8 constant public READ_ONLY = 1;
+    uint8 constant public ALL_PURPOSES = FUNDS_MANAGEMENT & KEY_MANAGEMENT & WRITE_ONLY & READ_ONLY;
+}
+
 /**
  * Identity contract containing funds and accessors (ethereum public keys or contract addresses)
  * It can hold eth and any ERC20 token
@@ -12,12 +20,7 @@ contract ERC20Basic {
  * or to contracts similar to ZincAccessor by providing a fixed interface
  */
 
-contract Identity {
-    uint8 constant public FUNDS_MANAGEMENT = 8;
-    uint8 constant public KEY_MANAGEMENT = 4;
-    uint8 constant public WRITE_ONLY = 2;
-    uint8 constant public READ_ONLY = 1;
-    uint8 constant public ALL_PURPOSES = FUNDS_MANAGEMENT & KEY_MANAGEMENT & WRITE_ONLY & READ_ONLY;
+contract Identity is PurposesConstants {
 
     event AccessorAdded(address indexed key, uint8 indexed purpose);
     event AccessorRemoved(address indexed key, uint8 indexed purpose);
