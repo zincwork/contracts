@@ -23,6 +23,9 @@ contract Encoder {
         return res; 
     }
 
+    /**
+     *  Encodes the string representation of a uint8 into bytes
+     */
     function encodeUInt(uint8 _uint) public pure returns(bytes memory) {
         uint8 high = uint8(_uint >> 4);
         uint8 low = uint8(_uint << 4 >> 4);
@@ -33,10 +36,16 @@ contract Encoder {
         }
     }
 
+    /**
+     *  Encodes the string representation of an address into bytes
+     */
     function encodeAddress(address _address) public pure returns (bytes memory) {
         return encodeBytes(addressToBytes(_address), 20);
     }
 
+    /**
+     *  Encodes a string into bytes
+     */
     function encodeString(string _str) public pure returns (bytes memory) {
         return abi.encodePacked(_str);
     }

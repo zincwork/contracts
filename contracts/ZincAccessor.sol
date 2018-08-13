@@ -4,7 +4,15 @@ import "./Identity.sol";
 import "./Encoder.sol";
 import "./SignatureValidator.sol";
 
-contract ZincAccessor is SignatureValidator, Encoder {
+/**
+ * ZincAccesor contract used for constructing and managing Identity contracts
+ * Access control is based on signed messages
+ * This contract can be used as a trustless entity that creates an Identity contract and is used to manage it.
+ * It operates as a proxy in order to allow users to interact with it based on signed messages and not spend any gas
+ * It can be upgraded with the user consent by adding a instance of a new version and removing the old one.
+ */
+
+contract ZincAccessor is SignatureValidator, Encoder, PurposesConstants {
 
     uint256 public nonce = 0;
 
@@ -12,8 +20,19 @@ contract ZincAccessor is SignatureValidator, Encoder {
     event AccessorAdded(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
     event AccessorRemoved(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
 
-    function checkUserSignature(address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v) public pure returns (bool) {
-        require(checkSignature(_message1, _nonce, _header1, _header2, _r, _s, _v) == _userAddress, "User signature must be the same as signed message");
+    function checkUserSignature(
+        address _userAddress,
+        string _message1,
+        uint32 _nonce,
+        string _header1,
+        string _header2,
+        bytes32 _r,
+        bytes32 _s,
+        uint8 _v) 
+    pure internal returns (bool) {
+        require(
+            checkSignature(_message1, _nonce, _header1, _header2, _r, _s, _v) == _userAddress,
+            "User signature must be the same as signed message");
         return true;
     }
 
@@ -22,18 +41,40 @@ contract ZincAccessor is SignatureValidator, Encoder {
         _;
     }
 
-    function constructUserIdentity(address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v)
+    /**
+     * Constructs an Identity contract and returns its address
+     * Requires a signed message to verify the identity of the initial user address
+     * @param _userAddress user address
+     * @param _message1 message that was signed
+     * @param _nonce nonce that was part of the signed message
+     * @param _header1 header for the message (ex: "string Message")
+     * @param _header2 header for the nonce (ex: "uint32 nonce")
+     * @param _r r from ECDSA
+     * @param _s s from ECDSA
+     * @param _v recovery id
+     */
+    function constructUserIdentity(
+        address _userAddress,
+        string _message1,
+        uint32 _nonce,
+        string _header1,
+        string _header2,
+        bytes32 _r,
+        bytes32 _s,
+        uint8 _v)
     public
      returns (address)  {
-        require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v), "User Signature not matched");
+        require(
+            checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v),
+            "User Signature does not match");
 
         address[] memory adresses = new address[](2);
         adresses[0] = _userAddress;
         adresses[1] = address(this);
 
         uint8[] memory permissions = new uint8[](2);
-        permissions[0] = 15;
-        permissions[1] = 7;
+        permissions[0] = ALL_PURPOSES;
+        permissions[1] = KEY_MANAGEMENT;
 
         Identity id = new Identity(adresses, permissions);
 
@@ -42,26 +83,85 @@ contract ZincAccessor is SignatureValidator, Encoder {
         return address(id);
     }
 
-    function addAccessor(address _key, address _idContract, uint8 _purpose, address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v)
+    /**
+     * Adds an accessor to an Identity contract
+     * Requires a signed message to verify the identity of the initial user address
+     * Requires _userAddress to have KEY_MANAGEMENT purpose on the Identity contract
+     * Emits AccessorAdded
+     * @param _key key to add to Identity
+     * @param _purpose purpose for _key
+     * @param _idContract address if Identity contract
+     * @param _userAddress user address
+     * @param _message1 message that was signed of the form "Add {_key} to {_idContract} with purpose {_purpose}"
+     * @param _nonce nonce that was part of the signed message
+     * @param _header1 header for the message (ex: "string Message")
+     * @param _header2 header for the nonce (ex: "uint32 nonce")
+     * @param _r r from ECDSA
+     * @param _s s from ECDSA
+     * @param _v recovery id
+     */
+    function addAccessor(
+        address _key,
+        address _idContract,
+        uint8 _purpose,
+        address _userAddress,
+        string _message1,
+        uint32 _nonce,
+        string _header1,
+        string _header2,
+        bytes32 _r,
+        bytes32 _s,
+        uint8 _v)
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
-        require(keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) == 
+        require(
+            keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) == 
             keccak256(encodeString(_message1)), "Message incorrect");
 
         Identity id = Identity(_idContract);
+        require(id.getAccessorPurpose(_userAddress) & id.KEY_MANAGEMENT() != 0);
+
         id.addAccessor(_key, _purpose);
         emit AccessorAdded(_idContract, _key, _purpose);
         return true;
     }
 
-
-    function removeAccessor(address _key, address _idContract, address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v)
+    /**
+     * Remove an accessor from Identity contract
+     * Requires a signed message to verify the identity of the initial user address
+     * Requires _userAddress to have KEY_MANAGEMENT purpose on the Identity contract
+     * Emits AccessorRemoved
+     * @param _key key to add to Identity
+     * @param _idContract address if Identity contract
+     * @param _userAddress user address
+     * @param _message1 message that was signed of the form "Remove {_key} from {_idContract}"
+     * @param _nonce nonce that was part of the signed message
+     * @param _header1 header for the message (ex: "string Message")
+     * @param _header2 header for the nonce (ex: "uint32 nonce")
+     * @param _r r from ECDSA
+     * @param _s s from ECDSA
+     * @param _v recovery id
+     */
+    function removeAccessor(
+        address _key,
+        address _idContract,
+        address _userAddress,
+        string _message1,
+        uint32 _nonce,
+        string _header1,
+        string _header2,
+        bytes32 _r,
+        bytes32 _s,
+        uint8 _v)
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
-        require(keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract))) == 
+        require(
+            keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
     
         Identity id = Identity(_idContract);
+        require(id.getAccessorPurpose(_userAddress) & id.KEY_MANAGEMENT() != 0);
+
         uint8 acessorPurpose = id.getAccessorPurpose(_key);
         id.removeAccessor(_key);
         emit AccessorRemoved(_idContract, _key, acessorPurpose);
