@@ -1,17 +1,16 @@
 pragma solidity ^0.4.24;
 
 import "./Identity.sol";
-
+import "./Encoder.sol";
 import "./SignatureValidator.sol";
 
-contract ZincAccessor is SignatureValidator {
+contract ZincAccessor is SignatureValidator, Encoder {
 
     uint256 public nonce = 0;
 
     event UserIdentityCreated(address indexed userAddress, address indexed identityContractAddress);
     event AccessorAdded(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
     event AccessorRemoved(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
-
 
     function checkUserSignature(address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v) public pure returns (bool) {
         require(checkSignature(_message1, _nonce, _header1, _header2, _r, _s, _v) == _userAddress, "User signature must be the same as signed message");
@@ -46,6 +45,9 @@ contract ZincAccessor is SignatureValidator {
     function addAccessor(address _key, address _idContract, uint8 _purpose, address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v)
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
+        require(keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) == 
+            keccak256(encodeString(_message1)), "Message incorrect");
+
         Identity id = Identity(_idContract);
         id.addAccessor(_key, _purpose);
         emit AccessorAdded(_idContract, _key, _purpose);
@@ -56,6 +58,9 @@ contract ZincAccessor is SignatureValidator {
     function removeAccessor(address _key, address _idContract, address _userAddress, string _message1, uint32 _nonce, string _header1, string _header2, bytes32 _r, bytes32 _s, uint8 _v)
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
+        require(keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract))) == 
+            keccak256(encodeString(_message1)), "Message incorrect");
+    
         Identity id = Identity(_idContract);
         uint8 acessorPurpose = id.getAccessorPurpose(_key);
         id.removeAccessor(_key);
