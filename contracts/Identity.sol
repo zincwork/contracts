@@ -54,14 +54,14 @@ contract Identity is PurposesConstants {
     }
 
     /**
-     * Returns the purpose for an accesor, 0 if non-registered accessor
+     * Returns the purpose for an accessor, 0 if accessor isn't registered
      */
     function getAccessorPurpose(address _key) public view returns(uint8) {
         return accessorMap[_key];
     }
 
     /**
-     * Adds an accesor with purpose
+     * Adds an accessor with purpose
      * @param _key Eth public key or contract address
      * @param _purpose Purpose for accessor
      * Requires KEY_MANAGEMENT purpose for msg.sender
@@ -78,7 +78,7 @@ contract Identity is PurposesConstants {
     }
 
     /**
-     * Remove an accesor
+     * Remove an accessor
      * @param _key Eth public key or contract address
      * Requires KEY_MANAGEMENT purpose for msg.sender
      * Emits AccessorRemoved
