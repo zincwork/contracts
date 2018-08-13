@@ -7,8 +7,8 @@ contract SignatureValidator {
      pure internal returns (bytes32) {
         return keccak256(
             abi.encodePacked(
-	              keccak256(abi.encodePacked(_header1, _header2)),
-	              keccak256(abi.encodePacked(_message1, _message2)))
+                    keccak256(abi.encodePacked(_header1, _header2)),
+                    keccak256(abi.encodePacked(_message1, _message2)))
         );
     }
 

@@ -6,15 +6,18 @@ contract ERC20Basic {
 }
 
 /**
- * Identity contract containing funds and accessors(ethereum public keys or contract addresses)
+ * Identity contract containing funds and accessors (ethereum public keys or contract addresses)
+ * It can hold eth and any ERC20 token
+ * The goal is to be able to give various permissions to your own keys
+ * or to contracts similar to ZincAccessor by providing a fixed interface
  */
 
 contract Identity {
-    uint8 constant public ALL_PURPOSES = 15;
     uint8 constant public FUNDS_MANAGEMENT = 8;
     uint8 constant public KEY_MANAGEMENT = 4;
     uint8 constant public WRITE_ONLY = 2;
     uint8 constant public READ_ONLY = 1;
+    uint8 constant public ALL_PURPOSES = FUNDS_MANAGEMENT & KEY_MANAGEMENT & WRITE_ONLY & READ_ONLY;
 
     event AccessorAdded(address indexed key, uint8 indexed purpose);
     event AccessorRemoved(address indexed key, uint8 indexed purpose);

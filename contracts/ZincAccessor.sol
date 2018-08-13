@@ -6,7 +6,10 @@ import "./SignatureValidator.sol";
 
 /**
  * ZincAccesor contract used for constructing and managing Identity contracts
- * Access control is based on signed messages.
+ * Access control is based on signed messages
+ * This contract can be used as a trustless entity that creates an Identity contract and is used to manage it.
+ * It operates as a proxy in order to allow users to interact with it based on signed messages and not spend any gas
+ * It can be upgraded with the user consent by adding a instance of a new version and removing the old one.
  */
 
 contract ZincAccessor is SignatureValidator, Encoder {
@@ -89,7 +92,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
      * @param _purpose purpose for _key
      * @param _idContract address if Identity contract
      * @param _userAddress user address
-     * @param _message1 message that was signed
+     * @param _message1 message that was signed of the form "Add {_key} to {_idContract} with purpose {_purpose}"
      * @param _nonce nonce that was part of the signed message
      * @param _header1 header for the message (ex: "string Message")
      * @param _header2 header for the nonce (ex: "uint32 nonce")
@@ -131,7 +134,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
      * @param _key key to add to Identity
      * @param _idContract address if Identity contract
      * @param _userAddress user address
-     * @param _message1 message that was signed
+     * @param _message1 message that was signed of the form "Remove {_key} from {_idContract}"
      * @param _nonce nonce that was part of the signed message
      * @param _header1 header for the message (ex: "string Message")
      * @param _header2 header for the nonce (ex: "uint32 nonce")
