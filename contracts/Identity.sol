@@ -5,14 +5,6 @@ contract ERC20Basic {
     function transfer(address _to, uint256 _value) public returns (bool);
 }
 
-contract PurposesConstants {
-    uint8 constant public FUNDS_MANAGEMENT = 8;
-    uint8 constant public KEY_MANAGEMENT = 4;
-    uint8 constant public WRITE_ONLY = 2;
-    uint8 constant public READ_ONLY = 1;
-    uint8 constant public ALL_PURPOSES = FUNDS_MANAGEMENT | KEY_MANAGEMENT | WRITE_ONLY | READ_ONLY;
-}
-
 /**
  * Identity contract containing funds and accessors (ethereum public keys or contract addresses)
  * It can hold eth and any ERC20 token
@@ -20,7 +12,26 @@ contract PurposesConstants {
  * or to contracts similar to ZincAccessor by providing a fixed interface
  */
 
-contract Identity is PurposesConstants {
+contract Identity {
+
+    enum Purposes {
+        NONE,             // 0b0000
+        READ_ONLY,        // 0b0001
+        WRITE_ONLY,       // 0b0010
+        ___,
+        KEY_MANAGEMENT,   // 0b0100
+        _____,
+        ______,
+        _______,
+        FUNDS_MANAGEMENT, // 0b1000
+        _________,
+        __________,
+        ___________,
+        ____________,
+        _____________,
+        ______________,
+        ALL_PURPOSES      // 0b1111
+    }
 
     event AccessorAdded(address indexed key, uint8 indexed purpose);
     event AccessorRemoved(address indexed key, uint8 indexed purpose);
@@ -43,13 +54,13 @@ contract Identity is PurposesConstants {
         }
     }
 
-    modifier allowedByPurpose(uint8 _purpose) {
-        require(accessorMap[msg.sender] & _purpose != 0, "Not authorized");
+    modifier allowedByPurpose(Purposes _purpose) {
+        require(accessorMap[msg.sender] & uint8(_purpose) != 0, "Not authorized");
         _;
     }
 
     modifier checkPurpose(uint8 _purpose) {
-        require(_purpose > 0 && _purpose <= ALL_PURPOSES, "Invalid purpose");
+        require(_purpose > uint8(Purposes.NONE) && _purpose <= uint8(Purposes.ALL_PURPOSES), "Invalid purpose");
         _;
     }
 
@@ -67,7 +78,7 @@ contract Identity is PurposesConstants {
      * Requires KEY_MANAGEMENT purpose for msg.sender
      * Emits AccessorUpdated or AccessorAdded
      */
-    function addAccessor(address _key, uint8 _purpose) public allowedByPurpose(KEY_MANAGEMENT) checkPurpose(_purpose) {
+    function addAccessor(address _key, uint8 _purpose) public allowedByPurpose(Purposes.KEY_MANAGEMENT) checkPurpose(_purpose) {
         uint8 oldPurpose = accessorMap[_key];
         accessorMap[_key] = _purpose;
         if (oldPurpose != 0) {
@@ -83,7 +94,7 @@ contract Identity is PurposesConstants {
      * Requires KEY_MANAGEMENT purpose for msg.sender
      * Emits AccessorRemoved
      */
-    function removeAccessor(address _key) public allowedByPurpose(KEY_MANAGEMENT) {
+    function removeAccessor(address _key) public allowedByPurpose(Purposes.KEY_MANAGEMENT) {
         uint8 purpose = accessorMap[_key];
         delete accessorMap[_key];
         emit AccessorRemoved(_key, purpose);
@@ -93,7 +104,7 @@ contract Identity is PurposesConstants {
      * Send all ether to msg.sender
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function withdraw() public allowedByPurpose(FUNDS_MANAGEMENT) {
+    function withdraw() public allowedByPurpose(Purposes.FUNDS_MANAGEMENT) {
         msg.sender.transfer(address(this).balance);
     }
 
@@ -103,7 +114,7 @@ contract Identity is PurposesConstants {
      * @param _account recepient
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function transferEth(uint _amount, address _account) allowedByPurpose(FUNDS_MANAGEMENT) public {
+    function transferEth(uint _amount, address _account) allowedByPurpose(Purposes.FUNDS_MANAGEMENT) public {
         require(_amount <= address(this).balance, "Amount should be less than total balance of the contract");
         require(_account != address(0), "must be valid address");
         _account.transfer(_amount);
@@ -129,7 +140,7 @@ contract Identity is PurposesConstants {
      * @param _token ERC20 contract address
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function withdrawTokens(address _token) public allowedByPurpose(FUNDS_MANAGEMENT) {
+    function withdrawTokens(address _token) public allowedByPurpose(Purposes.FUNDS_MANAGEMENT) {
         require(_token != address(0));
         ERC20Basic token = ERC20Basic(_token);
         uint balance = token.balanceOf(this);
@@ -144,7 +155,7 @@ contract Identity is PurposesConstants {
      * @param _amount amount in 
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function transferTokens(address _token, address _to, uint _amount) public allowedByPurpose(FUNDS_MANAGEMENT) {
+    function transferTokens(address _token, address _to, uint _amount) public allowedByPurpose(Purposes.FUNDS_MANAGEMENT) {
         require(_token != address(0));
         require(_to != address(0));
         ERC20Basic token = ERC20Basic(_token);
