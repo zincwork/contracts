@@ -12,7 +12,7 @@ import "./SignatureValidator.sol";
  * It can be upgraded with the user consent by adding a instance of a new version and removing the old one.
  */
 
-contract ZincAccessor is SignatureValidator, Encoder, PurposesConstants {
+contract ZincAccessor is SignatureValidator, Encoder {
 
     uint256 public nonce = 0;
 
@@ -73,8 +73,8 @@ contract ZincAccessor is SignatureValidator, Encoder, PurposesConstants {
         adresses[1] = address(this);
 
         uint8[] memory permissions = new uint8[](2);
-        permissions[0] = ALL_PURPOSES;
-        permissions[1] = KEY_MANAGEMENT;
+        permissions[0] = uint8(Identity.Purposes.ALL_PURPOSES);
+        permissions[1] = uint8(Identity.Purposes.KEY_MANAGEMENT);
 
         Identity id = new Identity(adresses, permissions);
 
@@ -119,7 +119,7 @@ contract ZincAccessor is SignatureValidator, Encoder, PurposesConstants {
             keccak256(encodeString(_message1)), "Message incorrect");
 
         Identity id = Identity(_idContract);
-        require(id.getAccessorPurpose(_userAddress) & id.KEY_MANAGEMENT() != 0);
+        require(id.getAccessorPurpose(_userAddress) & uint8(Identity.Purposes.KEY_MANAGEMENT) != 0);
 
         id.addAccessor(_key, _purpose);
         emit AccessorAdded(_idContract, _key, _purpose);
@@ -158,9 +158,9 @@ contract ZincAccessor is SignatureValidator, Encoder, PurposesConstants {
         require(
             keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
-    
+
         Identity id = Identity(_idContract);
-        require(id.getAccessorPurpose(_userAddress) & id.KEY_MANAGEMENT() != 0);
+        require(id.getAccessorPurpose(_userAddress) & uint8(Identity.Purposes.KEY_MANAGEMENT) != 0);
 
         uint8 acessorPurpose = id.getAccessorPurpose(_key);
         id.removeAccessor(_key);
