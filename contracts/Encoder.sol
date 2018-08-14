@@ -18,7 +18,7 @@ contract Encoder {
      */
     function encodeUInt(uint8 _uint) public pure returns(bytes memory) {
         uint8 high = uint8(_uint >> 4);
-        uint8 low = uint8(_uint << 4 >> 4);
+        uint8 low = uint8(_uint) & 15;
         if (high > 0) {
             return abi.encodePacked(uintToChar(high), uintToChar(low));
         } else {
@@ -34,9 +34,9 @@ contract Encoder {
             // get each byte of the address
             byte b = byte(uint8(uint(_address) / (2**(8*(19 - i)))));
 
-            // split it into
+            // split it into two
             uint8 high = uint8(b >> 4);
-            uint8 low = uint8(b << 4 >> 4);
+            uint8 low = uint8(b) & 15;
 
             // and encode them as chars
             res = abi.encodePacked(res, uintToChar(high), uintToChar(low));
