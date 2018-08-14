@@ -6,7 +6,10 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "removeComments": true,
-    "lib": ["dom", "es2017"],
-    "pretty": true
-  }
+    "target": "es6",
+    "lib": ["es6", "es2017", "dom"],
+    "pretty": true,
+    "skipLibCheck": true
+  },
+  "include": ["./truffle.d.ts", "./web3.d.ts", "./bn.js.d.ts", "test/**/*.ts"]
 }

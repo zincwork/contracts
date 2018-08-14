@@ -14,13 +14,13 @@ Please install the following plugins for your IDE:
 
 ## Scripts
 
-| Command       | Description                                                    |
-| ------------- | -------------------------------------------------------------- |
-| `yarn build`  | Compiles the Solidity source files into JSON (ABI) located in a `build` directory.   |
-| `yarn test`   | Compiles all TypeScript files and runs the truffle test suite. |
-| `yarn reset`  | Deletes the `build` directories and compiled `test.js` files.  |
-| `yarn lint`   | Lints the source TypeScript files using [TSLint][tslint].      |
-| `yarn format` | Formats all files using [Prettier][prettier].                  |
+| Command       | Description                                                                        |
+| ------------- | ---------------------------------------------------------------------------------- |
+| `yarn build`  | Compiles the Solidity source files into JSON (ABI) located in a `build` directory. |
+| `yarn test`   | Compiles all TypeScript files and runs the truffle test suite.                     |
+| `yarn reset`  | Deletes the `build` directories and compiled `test.js` files.                      |
+| `yarn lint`   | Lints the source TypeScript files using [TSLint][tslint].                          |
+| `yarn format` | Formats all files using [Prettier][prettier].                                      |
 
 [prettier]: https://prettier.io
 [tslint]: https://palantir.github.io/tslint

@@ -1,24 +1,4 @@
 import { assert } from "chai"
-import { IRegistryInstance } from "../contracts/registry"
-
-declare function contract(
-  name: string,
-  test: (accounts: string[]) => void
-): void
-
-declare function it(name: string, test: (accounts: string[]) => void): void
-
-declare const artifacts: Iartifacts
-
-interface Iartifacts {
-  require(name: "Registry"): Icontract<IRegistryInstance>
-}
-
-interface Icontract<T> {
-  "new"(...args: any[]): Promise<T>
-  deployed(): Promise<T>
-  at(address: string): T
-}
 
 const Registry = artifacts.require("Registry")
 
