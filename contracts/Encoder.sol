@@ -3,24 +3,14 @@ pragma solidity ^0.4.24;
 contract Encoder {
 
     function uintToChar(uint8 _uint) internal pure returns(string) {
-        string[16] memory chars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
-        return chars[_uint & 15];
-    }
-
-    function addressToBytes(address _address) internal pure returns (bytes memory b) {
-        b = new bytes(20);
-        for (uint i = 0; i < 20; i++)
-            b[i] = byte(uint8(uint(_address) / (2**(8*(19 - i)))));
-    }
-
-    function encodeBytes(bytes arr, uint8 _length) internal pure returns (bytes memory res) {
-        for (uint i = 0; i < _length; i++) {
-            byte b = arr[i];
-            uint8 high = uint8(b >> 4);
-            uint8 low = uint8(b << 4 >> 4);
-            res = abi.encodePacked(res, uintToChar(high), uintToChar(low));
+        byte b = "\x30"; // ASCII code for 0
+        if (_uint > 9) {
+            b = "\x60";  // ASCII code for the char before a
+            _uint -= 9;
         }
-        return res; 
+        bytes memory bs = new bytes(1);
+        bs[0] = b | byte(_uint);
+        return string(bs);
     }
 
     /**
@@ -39,8 +29,19 @@ contract Encoder {
     /**
      *  Encodes the string representation of an address into bytes
      */
-    function encodeAddress(address _address) public pure returns (bytes memory) {
-        return encodeBytes(addressToBytes(_address), 20);
+    function encodeAddress(address _address) public pure returns (bytes memory res) {
+        for (uint i = 0; i < 20; i++) {
+            // get each byte of the address
+            byte b = byte(uint8(uint(_address) / (2**(8*(19 - i)))));
+
+            // split it into
+            uint8 high = uint8(b >> 4);
+            uint8 low = uint8(b << 4 >> 4);
+
+            // and encode them as chars
+            res = abi.encodePacked(res, uintToChar(high), uintToChar(low));
+        }
+        return res;
     }
 
     /**
