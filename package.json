@@ -6,7 +6,7 @@
   "scripts": {
     "build": "truffle compile",
     "reset": "rimraf build test/*.js",
-    "test": "tsc && truffle test && rimraf test/*.js",
+    "test": "tsc && truffle test --network develop && rimraf test/*.js",
     "generate-types":
       "truffle compile && ts-node generate-contacts-types.ts > truffle.d.ts && yarn format",
     "lint": "tslint --format codeFrame --fix '{test,contracts}/**/*.ts'",
@@ -20,9 +20,10 @@
     "bignumber.js": "^7.2.1",
     "chai": "^4.1.2",
     "debug": "^3.1.0",
+    "eth-sig-util": "1.4.2",
     "supertest": "^3.1.0",
     "truffle": "^4.1.11",
-    "web3": "^1.0.0-beta.35"
+    "truffle-hdwallet-provider": "^0.0.6"
   },
   "devDependencies": {
     "husky": "^0.14.3",
