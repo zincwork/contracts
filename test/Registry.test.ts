@@ -41,7 +41,7 @@ contract("Registry", (accounts) => {
 
   it("add claim method throws if sender isn't issuer or owner", async () => {
     const registry = await Registry.new()
-    await registry
+    registry
       .setClaim(
         "0xf17f52151ebef6c7334fad080c5704d77216b732",
         "0x627306090abab3a6e1400e9345bc60c78a8bef57",
@@ -65,7 +65,7 @@ contract("Registry", (accounts) => {
     const result = await registry.setClaim(subject, issuer, id, key, data, {
       gas: 1000000
     })
-    assert.deepEqual(result.logs[0].args, {
+    assert.deepStrictEqual(result.logs[0].args, {
       subject,
       issuer,
       id,
@@ -81,7 +81,7 @@ contract("Registry", (accounts) => {
       gas: 1000000
     })
     const receivedData = await registry.getClaim.call(subject, issuer, id, key)
-    assert.deepEqual(receivedData, data)
+    assert.deepStrictEqual(receivedData, data)
   })
 
   it("subject can remove claim for less than 21000 gas", async () => {
@@ -94,7 +94,7 @@ contract("Registry", (accounts) => {
     assert.isBelow(totalGas, 21000)
     await registry.removeClaim(subject, issuer, id, key)
     const receivedData2 = await registry.getClaim.call(subject, issuer, id, key)
-    assert.deepEqual(
+    assert.deepStrictEqual(
       receivedData2,
       "0x0000000000000000000000000000000000000000000000000000000000000000"
     )
@@ -109,7 +109,7 @@ contract("Registry", (accounts) => {
       from: accounts[1] // msg.sender = issuer
     })
     const receivedData3 = await registry.getClaim.call(subject, issuer, id, key)
-    assert.deepEqual(
+    assert.deepStrictEqual(
       receivedData3,
       "0x0000000000000000000000000000000000000000000000000000000000000000"
     )
@@ -142,7 +142,7 @@ contract("Registry", (accounts) => {
       id,
       key
     )
-    assert.deepEqual(
+    assert.deepStrictEqual(
       receivedData4,
       "0x0000000000000000000000000000000000000000000000000000000000000000"
     )
@@ -153,7 +153,7 @@ contract("Registry", (accounts) => {
     await registry.setClaim(subject, issuer, id, key, data, {
       gas: 1000000
     })
-    await registry
+    registry
       .removeClaim(subject, issuer, id, key, { from: accounts[2] }) // msg.sender != issuer && != subject && != owner
       .then(assert.fail)
       .catch((error: any) => {
@@ -164,7 +164,7 @@ contract("Registry", (accounts) => {
         )
       })
     const receivedData6 = await registry.getClaim.call(subject, issuer, id, key)
-    assert.deepEqual(receivedData6, data)
+    assert.deepStrictEqual(receivedData6, data)
   })
 
   it("emits ClaimRemoved event", async () => {
@@ -173,7 +173,7 @@ contract("Registry", (accounts) => {
       gas: 1000000
     })
     const remove = await registry.removeClaim(subject, issuer, id, key)
-    assert.deepEqual(remove.logs[0].args, {
+    assert.deepStrictEqual(remove.logs[0].args, {
       subject,
       issuer,
       id,
