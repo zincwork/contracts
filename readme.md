@@ -1,4 +1,4 @@
-# MVP Blockchain
+
 
 This project uses [yarn][yarn] to manage project dependencies.
 
