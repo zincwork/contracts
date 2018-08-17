@@ -30,3 +30,7 @@ Please install the following plugins for your IDE:
 [tslint]: https://palantir.github.io/tslint
 [yarn]: https://yarnpkg.com
 [yarn-install]: https://yarnpkg.com/en/docs/install
+
+## License
+
+MIT
