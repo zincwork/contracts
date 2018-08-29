@@ -337,7 +337,7 @@ export interface ERC725Instance extends ContractInstance {
     call: (
       key: string,
       options?: TransactionOptions
-    ) => Promise<[BigNumber.BigNumber[], BigNumber.BigNumber, string]>
+    ) => Promise<[BigNumber.BigNumber, BigNumber.BigNumber, string]>
     estimateGas: (
       subject: string,
       issuer: string,
@@ -357,7 +357,7 @@ export interface ERC725Instance extends ContractInstance {
     call: (
       key: string,
       options?: TransactionOptions
-    ) => Promise<BigNumber.BigNumber[]>
+    ) => Promise<BigNumber.BigNumber>
     estimateGas: (
       subject: string,
       issuer: string,
@@ -745,7 +745,7 @@ export interface IdentityV1Instance extends ContractInstance {
     call: (
       key: string,
       options?: TransactionOptions
-    ) => Promise<[BigNumber.BigNumber[], BigNumber.BigNumber, string]>
+    ) => Promise<[BigNumber.BigNumber, BigNumber.BigNumber, string]>
     estimateGas: (
       subject: string,
       issuer: string,
@@ -765,7 +765,7 @@ export interface IdentityV1Instance extends ContractInstance {
     call: (
       key: string,
       options?: TransactionOptions
-    ) => Promise<BigNumber.BigNumber[]>
+    ) => Promise<BigNumber.BigNumber>
     estimateGas: (
       subject: string,
       issuer: string,

@@ -63,14 +63,10 @@ contract ZincAccessor is SignatureValidator, Encoder {
         bytes32 _s,
         uint8 _v)
     public
-     returns (address)  {
+     returns (address) {
         require(
             checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v),
             "User Signature does not match");
-
-        address[] memory adresses = new address[](2);
-        adresses[0] = _userAddress;
-        adresses[1] = address(this);
 
         IdentityV1 id = new IdentityV1();
         id.addKey(keccak256(_userAddress), id.MANAGEMENT_KEY(), 1);

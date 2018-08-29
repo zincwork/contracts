@@ -12,8 +12,8 @@ contract ERC20Basic {
 
 contract IdentityV1 is ERC725 {
 
-    uint256 constant LOGIN_ONLY_KEY = 10;
-    uint256 constant FUNDS_MANAGEMENT = 11;
+    uint256 constant LOGIN_ONLY_KEY = 16;
+    uint256 constant FUNDS_MANAGEMENT = 32;
 
     uint256 executionNonce;
 
@@ -34,7 +34,7 @@ contract IdentityV1 is ERC725 {
     constructor() public {
         bytes32 _key = keccak256(msg.sender);
         keys[_key].key = _key;
-        keys[_key].purpose = [MANAGEMENT_KEY];
+        keys[_key].purpose = MANAGEMENT_KEY;
         keys[_key].keyType = 1;
         keysByPurpose[MANAGEMENT_KEY].push(_key);
         emit KeyAdded(_key, MANAGEMENT_KEY, 1);
@@ -43,7 +43,7 @@ contract IdentityV1 is ERC725 {
     function getKey(bytes32 _key)
         public
         view
-        returns(uint256[] purpose, uint256 keyType, bytes32 key)
+        returns(uint256 purpose, uint256 keyType, bytes32 key)
     {
         return (keys[_key].purpose, keys[_key].keyType, keys[_key].key);
     }
@@ -51,7 +51,7 @@ contract IdentityV1 is ERC725 {
     function getKeyPurpose(bytes32 _key)
         public
         view
-        returns(uint256[] purpose)
+        returns(uint256 purpose)
     {
         return (keys[_key].purpose);
     }
@@ -84,12 +84,12 @@ contract IdentityV1 is ERC725 {
         onlyManagement
         returns (bool success)
     {
-        if (keyHasPurpose(_key, _purpose)) {
-            return true;
-        }
+        // if (keyHasPurpose(_key, _purpose)) {
+        //     return true;
+        // }
 
         keys[_key].key = _key;
-        keys[_key].purpose.push(_purpose);
+        keys[_key].purpose |= _purpose;
         keys[_key].keyType = _type;
 
         keysByPurpose[_purpose].push(_key);
@@ -162,20 +162,7 @@ contract IdentityV1 is ERC725 {
             return false;
         }
 
-        uint256 arrayLength = keys[_key].purpose.length;
-        int index = -1;
-        for (uint i = 0; i < arrayLength; i++) {
-            if (keys[_key].purpose[i] == _purpose) {
-                index = int(i);
-                break;
-            }
-        }
-
-        if (index != -1) {
-            keys[_key].purpose[uint(index)] = keys[_key].purpose[arrayLength - 1];
-            delete keys[_key].purpose[arrayLength - 1];
-            keys[_key].purpose.length--;
-        }
+        keys[_key].purpose ^= _purpose;
 
         uint256 purposesLen = keysByPurpose[_purpose].length;
         for (uint j = 0; j < purposesLen; j++) {
@@ -197,14 +184,7 @@ contract IdentityV1 is ERC725 {
         view
         returns(bool result)
     {
-        if (keys[_key].key == 0) return false;
-        uint256 arrayLength = keys[_key].purpose.length;
-        for (uint i = 0; i < arrayLength; i++) {
-            if (keys[_key].purpose[i] == _purpose) {
-                return true;
-            }
-        }
-        return false;
+        return keys[_key].purpose & _purpose == _purpose;
     }
 
    /**

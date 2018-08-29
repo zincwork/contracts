@@ -5,8 +5,8 @@ contract ERC725 {
 
     uint256 public constant MANAGEMENT_KEY = 1;
     uint256 public constant ACTION_KEY = 2;
-    uint256 public constant CLAIM_SIGNER_KEY = 3;
-    uint256 public constant ENCRYPTION_KEY = 4;
+    uint256 public constant CLAIM_SIGNER_KEY = 4;
+    uint256 public constant ENCRYPTION_KEY = 8;
 
     event KeyAdded(bytes32 indexed key, uint256 indexed purpose, uint256 indexed keyType);
     event KeyRemoved(bytes32 indexed key, uint256 indexed purpose, uint256 indexed keyType);
@@ -15,13 +15,13 @@ contract ERC725 {
     event Approved(uint256 indexed executionId, bool approved);
 
     struct Key {
-        uint256[] purpose; //e.g., MANAGEMENT_KEY = 1, ACTION_KEY = 2, etc.
+        uint256 purpose; //e.g., MANAGEMENT_KEY = 1, ACTION_KEY = 2, etc.
         uint256 keyType; // e.g. 1 = ECDSA, 2 = RSA, etc.
         bytes32 key;
     }
 
-    function getKey(bytes32 _key) public constant returns(uint256[] purpose, uint256 keyType, bytes32 key);
-    function getKeyPurpose(bytes32 _key) public constant returns(uint256[] purpose);
+    function getKey(bytes32 _key) public constant returns(uint256 purpose, uint256 keyType, bytes32 key);
+    function getKeyPurpose(bytes32 _key) public constant returns(uint256 purpose);
     function getKeysByPurpose(uint256 _purpose) public constant returns(bytes32[] keys);
     function addKey(bytes32 _key, uint256 _purpose, uint256 _keyType) public returns (bool success);
     function removeKey(bytes32 _key, uint256 _purpose) public returns (bool success);

@@ -1,4 +1,3 @@
-import BigNumber from "bignumber.js"
 import { assert } from "chai"
 
 /*tslint:disable-next-line:no-var-requires*/
@@ -34,10 +33,6 @@ function createSignedMessage(key: string, nonce: number, message: string) {
   }
 }
 
-function bigNumberArrayToNumber(arr: BigNumber[]) {
-  return arr.map((x) => x.toNumber())
-}
-
 const ZincAcessor = artifacts.require("ZincAccessor")
 const IdentityV1 = artifacts.require("IdentityV1")
 
@@ -57,12 +52,13 @@ contract("ZincAccessor", (accounts) => {
     )
 
     // actual gas used 1407460
+    console.log(receipt.receipt.gasUsed)
     assert(
       receipt.receipt.gasUsed < 1500000,
       "Too much gas used for constructUserIdentity"
     )
 
-    let idContractAddress
+    let idContractAddress: string
 
     if (
       receipt.receipt.status &&
@@ -80,12 +76,12 @@ contract("ZincAccessor", (accounts) => {
       const userPrivileges = await id.getKeyPurpose.call(
         web3.sha3(userAddress, { encoding: "hex" })
       )
-      assert.deepStrictEqual(bigNumberArrayToNumber(userPrivileges), [1])
+      assert.deepStrictEqual(userPrivileges.toNumber(), 1)
 
       const zincPrivileges = await id.getKeyPurpose.call(
         web3.sha3(zinc.address, { encoding: "hex" })
       )
-      assert.deepStrictEqual(bigNumberArrayToNumber(zincPrivileges), [1])
+      assert.deepStrictEqual(zincPrivileges.toNumber(), 1)
     }
   })
 
@@ -122,6 +118,7 @@ contract("ZincAccessor", (accounts) => {
     )
 
     // actual gas used 268273
+    console.log(receipt.receipt.gasUsed)
     assert(
       receipt.receipt.gasUsed < 270000,
       "Too much gas used to add accessor"
@@ -131,7 +128,7 @@ contract("ZincAccessor", (accounts) => {
       web3.sha3(keyToAdd, { encoding: "hex" })
     )
 
-    assert.deepStrictEqual(bigNumberArrayToNumber(purposeShouldBe), [purpose])
+    assert.deepStrictEqual(purposeShouldBe.toNumber(), purpose)
   })
 
   it("can add and remove accessor with a valid purpose", async () => {
@@ -169,8 +166,9 @@ contract("ZincAccessor", (accounts) => {
     const purposeShouldBe = await id.getKeyPurpose.call(
       web3.sha3(keyToAdd, { encoding: "hex" })
     )
+    console.log(purposeShouldBe)
 
-    assert.deepStrictEqual(bigNumberArrayToNumber(purposeShouldBe), [purpose])
+    assert.deepStrictEqual(purposeShouldBe.toNumber(), purpose)
 
     // Code for removeAccessor begins here:
 
@@ -200,6 +198,7 @@ contract("ZincAccessor", (accounts) => {
     )
 
     // actual gas used 119205
+    console.log(receipt.receipt.gasUsed)
     assert(
       receipt.receipt.gasUsed < 120000,
       "Too much gas used for removing accessor"
@@ -209,6 +208,6 @@ contract("ZincAccessor", (accounts) => {
       web3.sha3(keyToAdd, { encoding: "hex" })
     )
 
-    assert.deepStrictEqual(bigNumberArrayToNumber(purposeShouldBeZero), [])
+    assert.deepStrictEqual(purposeShouldBeZero.toNumber(), 0)
   })
 })
