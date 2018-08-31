@@ -31,6 +31,21 @@ contract IdentityV1 is ERC725 {
 
     event ExecutionFailed(uint256 indexed executionId, address indexed to, uint256 indexed value, bytes data);
 
+    modifier onlyManagement() {
+        require(keyHasPurpose(keccak256(msg.sender), MANAGEMENT_KEY), "Sender does not have management key");
+        _;
+    }
+
+    modifier onlyAction() {
+        require(keyHasPurpose(keccak256(msg.sender), ACTION_KEY), "Sender does not have action key");
+        _;
+    }
+
+    modifier onlyFundsManagement() {
+        require(keyHasPurpose(keccak256(msg.sender), FUNDS_MANAGEMENT), "Sender does not have funds key");
+        _;
+    }
+
     constructor() public {
         bytes32 _key = keccak256(msg.sender);
         keys[_key].key = _key;
@@ -62,21 +77,6 @@ contract IdentityV1 is ERC725 {
         returns(bytes32[] _keys)
     {
         return keysByPurpose[_purpose];
-    }
-
-    modifier onlyManagement() {
-        require(keyHasPurpose(keccak256(msg.sender), MANAGEMENT_KEY), "Sender does not have management key");
-        _;
-    }
-
-    modifier onlyAction() {
-        require(keyHasPurpose(keccak256(msg.sender), ACTION_KEY), "Sender does not have action key");
-        _;
-    }
-
-    modifier onlyFundsManagement() {
-        require(keyHasPurpose(keccak256(msg.sender), FUNDS_MANAGEMENT), "Sender does not have funds key");
-        _;
     }
 
     function addKey(bytes32 _key, uint256 _purpose, uint256 _type)
@@ -117,7 +117,6 @@ contract IdentityV1 is ERC725 {
                     executions[_id].value,
                     executions[_id].data
                 );
-                return;
             } else {
                 emit ExecutionFailed(
                     _id,
@@ -125,8 +124,8 @@ contract IdentityV1 is ERC725 {
                     executions[_id].value,
                     executions[_id].data
                 );
-                return;
             }
+            return success;
         } else {
             executions[_id].approved = false;
         }
@@ -144,7 +143,7 @@ contract IdentityV1 is ERC725 {
 
         emit ExecutionRequested(executionNonce, _to, _value, _data);
 
-        if (keyHasPurpose(bytes32(msg.sender), ACTION_KEY)) {
+        if (keyHasPurpose(keccak256(msg.sender), ACTION_KEY)) {
             approve(executionNonce, true);
         }
 
