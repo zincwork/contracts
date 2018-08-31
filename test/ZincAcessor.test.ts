@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js"
 import { assert } from "chai"
 
 /*tslint:disable-next-line:no-var-requires*/
@@ -33,8 +34,12 @@ function createSignedMessage(key: string, nonce: number, message: string) {
   }
 }
 
+function bigNumberArrayToNumber(arr: BigNumber[]) {
+  return arr.map((x) => x.toNumber())
+}
+
 const ZincAcessor = artifacts.require("ZincAccessor")
-const Identity = artifacts.require("Identity")
+const IdentityV1 = artifacts.require("IdentityV1")
 
 contract("ZincAccessor", (accounts) => {
   it("should construct ZincAccessor and make a user Identity", async () => {
@@ -51,9 +56,9 @@ contract("ZincAccessor", (accounts) => {
       28
     )
 
-    // actual gas used 667173
+    // actual gas used 1506808
     assert(
-      receipt.receipt.gasUsed < 670000,
+      receipt.receipt.gasUsed < 1600000,
       "Too much gas used for constructUserIdentity"
     )
 
@@ -70,13 +75,17 @@ contract("ZincAccessor", (accounts) => {
           break
         }
       }
-      const id = Identity.at(idContractAddress)
+      const id = IdentityV1.at(idContractAddress)
 
-      const userPrivileges = await id.getAccessorPurpose(userAddress)
-      assert.deepStrictEqual(userPrivileges.toNumber(), 15)
+      const userPrivileges = await id.getKeyPurpose.call(
+        web3.sha3(userAddress, { encoding: "hex" })
+      )
+      assert.deepStrictEqual(bigNumberArrayToNumber(userPrivileges), [1])
 
-      const zincPrivileges = await id.getAccessorPurpose(zinc.address)
-      assert.deepStrictEqual(zincPrivileges.toNumber(), 4)
+      const zincPrivileges = await id.getKeyPurpose.call(
+        web3.sha3(zinc.address, { encoding: "hex" })
+      )
+      assert.deepStrictEqual(bigNumberArrayToNumber(zincPrivileges), [1])
     }
   })
 
@@ -84,7 +93,9 @@ contract("ZincAccessor", (accounts) => {
     const purpose = 3
 
     const zinc = await ZincAcessor.new()
-    const id = await Identity.new([zinc.address, publicKey], [4, 15])
+    const id = await IdentityV1.new()
+    await id.addKey(web3.sha3(zinc.address, { encoding: "hex" }), 1, 1)
+    await id.addKey(web3.sha3(publicKey, { encoding: "hex" }), 1, 1)
 
     const message1 = `Add ${keyToAdd} to ${id.address} with purpose ${purpose}`
 
@@ -110,15 +121,17 @@ contract("ZincAccessor", (accounts) => {
       vDecimal
     )
 
-    // actual gas used 163189
+    // actual gas used 268273
     assert(
-      receipt.receipt.gasUsed < 164000,
+      receipt.receipt.gasUsed < 270000,
       "Too much gas used to add accessor"
     )
 
-    const purposeShouldBe = await id.getAccessorPurpose(keyToAdd)
+    const purposeShouldBe = await id.getKeyPurpose.call(
+      web3.sha3(keyToAdd, { encoding: "hex" })
+    )
 
-    assert.deepStrictEqual(purposeShouldBe.toNumber(), purpose)
+    assert.deepStrictEqual(bigNumberArrayToNumber(purposeShouldBe), [purpose])
   })
 
   it("can add and remove accessor with a valid purpose", async () => {
@@ -126,7 +139,9 @@ contract("ZincAccessor", (accounts) => {
     let nonce = 1
 
     const zinc = await ZincAcessor.new()
-    const id = await Identity.new([zinc.address, publicKey], [4, 15])
+    const id = await IdentityV1.new()
+    await id.addKey(web3.sha3(zinc.address, { encoding: "hex" }), 1, 1)
+    await id.addKey(web3.sha3(publicKey, { encoding: "hex" }), 1, 1)
 
     let message1 = `Add ${keyToAdd} to ${id.address} with purpose ${purpose}`
 
@@ -151,14 +166,16 @@ contract("ZincAccessor", (accounts) => {
       s,
       vDecimal
     )
-    const purposeShouldBe = await id.getAccessorPurpose(keyToAdd)
+    const purposeShouldBe = await id.getKeyPurpose.call(
+      web3.sha3(keyToAdd, { encoding: "hex" })
+    )
 
-    assert.deepStrictEqual(purposeShouldBe.toNumber(), purpose)
+    assert.deepStrictEqual(bigNumberArrayToNumber(purposeShouldBe), [purpose])
 
     // Code for removeAccessor begins here:
 
     ++nonce
-    message1 = `Remove ${keyToAdd} from ${id.address}`
+    message1 = `Remove ${keyToAdd} from ${id.address} with purpose ${purpose}`
 
     sig = createSignedMessage(privateKey, nonce, message1).sig
 
@@ -171,6 +188,7 @@ contract("ZincAccessor", (accounts) => {
     const receipt: any = await zinc.removeAccessor(
       keyToAdd,
       id.address,
+      purpose,
       publicKey,
       message1,
       nonce,
@@ -181,15 +199,16 @@ contract("ZincAccessor", (accounts) => {
       vDecimal
     )
 
-    // actual gas used 118892
+    // actual gas used 120708
     assert(
-      receipt.receipt.gasUsed < 120000,
+      receipt.receipt.gasUsed < 130000,
       "Too much gas used for removing accessor"
     )
 
-    assert.deepStrictEqual(
-      (await id.getAccessorPurpose(keyToAdd)).toNumber(),
-      0
+    const purposeShouldBeZero = await id.getKeyPurpose.call(
+      web3.sha3(keyToAdd, { encoding: "hex" })
     )
+
+    assert.deepStrictEqual(bigNumberArrayToNumber(purposeShouldBeZero), [])
   })
 })

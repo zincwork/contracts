@@ -2,7 +2,7 @@
 
 The project architecture is decribed here:
 
-https://medium.com/@aliazam60/zinc-smart-contracts-architecture-56d751a02824 
+https://medium.com/@aliazam60/zinc-smart-contracts-architecture-56d751a02824
 
 This project uses [yarn][yarn] to manage project dependencies.
 

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./Identity.sol";
+import "./IdentityV1.sol";
 import "./Encoder.sol";
 import "./SignatureValidator.sol";
 
@@ -17,8 +17,8 @@ contract ZincAccessor is SignatureValidator, Encoder {
     uint256 public nonce = 0;
 
     event UserIdentityCreated(address indexed userAddress, address indexed identityContractAddress);
-    event AccessorAdded(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
-    event AccessorRemoved(address indexed identityContractAddress, address indexed keyAddress, uint8 indexed purpose);
+    event AccessorAdded(address indexed identityContractAddress, address indexed keyAddress, uint256 indexed purpose);
+    event AccessorRemoved(address indexed identityContractAddress, address indexed keyAddress, uint256 indexed purpose);
 
     function checkUserSignature(
         address _userAddress,
@@ -63,20 +63,13 @@ contract ZincAccessor is SignatureValidator, Encoder {
         bytes32 _s,
         uint8 _v)
     public
-     returns (address)  {
+     returns (address) {
         require(
             checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v),
             "User Signature does not match");
 
-        address[] memory adresses = new address[](2);
-        adresses[0] = _userAddress;
-        adresses[1] = address(this);
-
-        uint8[] memory permissions = new uint8[](2);
-        permissions[0] = uint8(Identity.Purposes.ALL_PURPOSES);
-        permissions[1] = uint8(Identity.Purposes.KEY_MANAGEMENT);
-
-        Identity id = new Identity(adresses, permissions);
+        IdentityV1 id = new IdentityV1();
+        id.addKey(keccak256(_userAddress), id.MANAGEMENT_KEY(), 1);
 
         emit UserIdentityCreated(_userAddress, address(id));
 
@@ -103,7 +96,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
     function addAccessor(
         address _key,
         address _idContract,
-        uint8 _purpose,
+        uint256 _purpose,
         address _userAddress,
         string _message1,
         uint32 _nonce,
@@ -115,13 +108,13 @@ contract ZincAccessor is SignatureValidator, Encoder {
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
         require(
-            keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) == 
+            keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
 
-        Identity id = Identity(_idContract);
-        require(id.getAccessorPurpose(_userAddress) & uint8(Identity.Purposes.KEY_MANAGEMENT) != 0);
+        IdentityV1 id = IdentityV1(_idContract);
+        require(id.keyHasPurpose(keccak256(_userAddress), id.MANAGEMENT_KEY()));
 
-        id.addAccessor(_key, _purpose);
+        id.addKey(keccak256(_key), _purpose, 1);
         emit AccessorAdded(_idContract, _key, _purpose);
         return true;
     }
@@ -145,6 +138,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
     function removeAccessor(
         address _key,
         address _idContract,
+        uint256 _purpose,
         address _userAddress,
         string _message1,
         uint32 _nonce,
@@ -156,15 +150,15 @@ contract ZincAccessor is SignatureValidator, Encoder {
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
         require(
-            keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract))) ==
+            keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
 
-        Identity id = Identity(_idContract);
-        require(id.getAccessorPurpose(_userAddress) & uint8(Identity.Purposes.KEY_MANAGEMENT) != 0);
+        IdentityV1 id = IdentityV1(_idContract);
+        require(id.keyHasPurpose(keccak256(_userAddress), id.MANAGEMENT_KEY()));
 
-        uint8 acessorPurpose = id.getAccessorPurpose(_key);
-        id.removeAccessor(_key);
-        emit AccessorRemoved(_idContract, _key, acessorPurpose);
+        id.removeKey(keccak256(_key), _purpose);
+
+        emit AccessorRemoved(_idContract, _key, _purpose);
         return true;
     }
 

@@ -16,14 +16,18 @@ contract Encoder {
     /**
      *  Encodes the string representation of a uint8 into bytes
      */
-    function encodeUInt(uint8 _uint) public pure returns(bytes memory) {
-        uint8 high = uint8(_uint >> 4);
-        uint8 low = uint8(_uint) & 15;
-        if (high > 0) {
-            return abi.encodePacked(uintToChar(high), uintToChar(low));
-        } else {
-            return abi.encodePacked(uintToChar(low));
+    function encodeUInt(uint256 _uint) public pure returns(bytes memory) {
+        if (_uint == 0) {
+            return abi.encodePacked(uintToChar(0));
         }
+
+        bytes memory result;
+        uint256 x = _uint;
+        while (x > 0) {
+            result = abi.encodePacked(uintToChar(uint8(x % 10)), result);
+            x /= 10;
+        }
+        return result;
     }
 
     /**
