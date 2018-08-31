@@ -108,7 +108,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
         require(
-            keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(uint8(_purpose)))) ==
+            keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
 
         IdentityV1 id = IdentityV1(_idContract);
@@ -150,7 +150,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
     public checknonce(_nonce) returns (bool) {
         require(checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v));
         require(
-            keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(uint8(_purpose)))) ==
+            keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
 
         IdentityV1 id = IdentityV1(_idContract);

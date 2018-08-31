@@ -12,7 +12,7 @@ contract ERC20Basic {
 
 contract IdentityV1 is ERC725 {
 
-    uint256 constant LOGIN_ONLY_KEY = 10;
+    uint256 constant LOGIN_KEY = 10;
     uint256 constant FUNDS_MANAGEMENT = 11;
 
     uint256 executionNonce;
@@ -181,7 +181,7 @@ contract IdentityV1 is ERC725 {
         for (uint j = 0; j < purposesLen; j++) {
             if (keysByPurpose[_purpose][j] == _key) {
                 keysByPurpose[_purpose][j] = keysByPurpose[_purpose][purposesLen - 1];
-                delete keysByPurpose[purposesLen - 1];
+                delete keysByPurpose[_purpose][purposesLen - 1];
                 keysByPurpose[_purpose].length--;
                 break;
             }
