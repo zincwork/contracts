@@ -39,7 +39,7 @@ function bigNumberArrayToNumber(arr: BigNumber[]) {
 }
 
 const ZincAcessor = artifacts.require("ZincAccessor")
-const IdentityV1 = artifacts.require("IdentityV1")
+const Identity = artifacts.require("Identity")
 
 contract("ZincAccessor", (accounts) => {
   it("should construct ZincAccessor and make a user Identity", async () => {
@@ -75,7 +75,7 @@ contract("ZincAccessor", (accounts) => {
           break
         }
       }
-      const id = IdentityV1.at(idContractAddress)
+      const id = Identity.at(idContractAddress)
 
       const userPrivileges = await id.getKeyPurpose.call(
         web3.sha3(userAddress, { encoding: "hex" })
@@ -93,7 +93,7 @@ contract("ZincAccessor", (accounts) => {
     const purpose = 3
 
     const zinc = await ZincAcessor.new()
-    const id = await IdentityV1.new()
+    const id = await Identity.new()
     await id.addKey(web3.sha3(zinc.address, { encoding: "hex" }), 1, 1)
     await id.addKey(web3.sha3(publicKey, { encoding: "hex" }), 1, 1)
 
@@ -139,7 +139,7 @@ contract("ZincAccessor", (accounts) => {
     let nonce = 1
 
     const zinc = await ZincAcessor.new()
-    const id = await IdentityV1.new()
+    const id = await Identity.new()
     await id.addKey(web3.sha3(zinc.address, { encoding: "hex" }), 1, 1)
     await id.addKey(web3.sha3(publicKey, { encoding: "hex" }), 1, 1)
 
