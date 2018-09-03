@@ -444,7 +444,9 @@ declare module "web3" {
       from: string
       to: string
       cumulativeGasUsed: number
-      gasUsed: number
+      receipt: {
+        gasUsed: number
+      }
       contractAddress: string | null
       logs: LogEntry<EventArgs>[]
       toNumber: () => number

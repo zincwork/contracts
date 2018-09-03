@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./IdentityV1.sol";
+import "./Identity.sol";
 import "./Encoder.sol";
 import "./SignatureValidator.sol";
 
@@ -68,7 +68,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
             checkUserSignature(_userAddress, _message1, _nonce, _header1, _header2, _r, _s, _v),
             "User Signature does not match");
 
-        IdentityV1 id = new IdentityV1();
+        Identity id = new Identity();
         id.addKey(keccak256(_userAddress), id.MANAGEMENT_KEY(), 1);
 
         emit UserIdentityCreated(_userAddress, address(id));
@@ -111,7 +111,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
             keccak256(abi.encodePacked("Add 0x", encodeAddress(_key), " to 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
 
-        IdentityV1 id = IdentityV1(_idContract);
+        Identity id = Identity(_idContract);
         require(id.keyHasPurpose(keccak256(_userAddress), id.MANAGEMENT_KEY()));
 
         id.addKey(keccak256(_key), _purpose, 1);
@@ -153,7 +153,7 @@ contract ZincAccessor is SignatureValidator, Encoder {
             keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) ==
             keccak256(encodeString(_message1)), "Message incorrect");
 
-        IdentityV1 id = IdentityV1(_idContract);
+        Identity id = Identity(_idContract);
         require(id.keyHasPurpose(keccak256(_userAddress), id.MANAGEMENT_KEY()));
 
         id.removeKey(keccak256(_key), _purpose);
