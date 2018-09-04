@@ -1,110 +1,217 @@
-pragma solidity ^0.4.24;
+// Taken from https://github.com/OriginProtocol/identity-playground/blob/0c9ba5c008d410e1ca82a2b1eed15705db49af0f/contracts/KeyHolder.sol
+// with some modifitcatioms
+
+pragma solidity ^0.4.22;
+
+import "./ERC725.sol";
 
 contract ERC20Basic {
     function balanceOf(address _who) public constant returns (uint256);
     function transfer(address _to, uint256 _value) public returns (bool);
 }
 
-/**
- * Identity contract containing funds and accessors (ethereum public keys or contract addresses)
- * It can hold eth and any ERC20 token
- * The goal is to be able to give various permissions to your own keys
- * or to contracts similar to ZincAccessor by providing a fixed interface
- */
+contract Identity is ERC725 {
 
-contract Identity {
+    uint256 constant LOGIN_KEY = 10;
+    uint256 constant FUNDS_MANAGEMENT = 11;
 
-    enum Purposes {
-        NONE,             // 0b0000
-        READ_ONLY,        // 0b0001
-        WRITE_ONLY,       // 0b0010
-        ___,
-        KEY_MANAGEMENT,   // 0b0100
-        _____,
-        ______,
-        _______,
-        FUNDS_MANAGEMENT, // 0b1000
-        _________,
-        __________,
-        ___________,
-        ____________,
-        _____________,
-        ______________,
-        ALL_PURPOSES      // 0b1111
+    uint256 executionNonce;
+
+    struct Execution {
+        address to;
+        uint256 value;
+        bytes data;
+        bool approved;
+        bool executed;
     }
 
-    event AccessorAdded(address indexed key, uint8 indexed purpose);
-    event AccessorRemoved(address indexed key, uint8 indexed purpose);
-    event AccessorUpdated(address indexed key, uint8 indexed oldPurpose, uint8 indexed newPurpose);
+    mapping (bytes32 => Key) keys;
+    mapping (uint256 => bytes32[]) keysByPurpose;
+    mapping (uint256 => Execution) executions;
 
-    mapping(address => uint8) accessorMap;
+    event ExecutionFailed(uint256 indexed executionId, address indexed to, uint256 indexed value, bytes data);
 
-    /**
-    * Constructs an Identity contract
-    * @param _initialAccessors The initial accessors array
-    * @param _purposes The initial purposes for each accessor
-    * Emits AccessorAdded for each accessor
-    */
-    constructor(address[] _initialAccessors, uint8[] _purposes) public {
-        uint arrayLength = _initialAccessors.length;
-        require(arrayLength == _purposes.length, "Arrays must be of the same size");
-        for(uint i = 0; i < arrayLength; i++) {
-            accessorMap[_initialAccessors[i]] = _purposes[i];
-            emit AccessorAdded(_initialAccessors[i], _purposes[i]);
+    modifier onlyManagement() {
+        require(keyHasPurpose(keccak256(msg.sender), MANAGEMENT_KEY), "Sender does not have management key");
+        _;
+    }
+
+    modifier onlyAction() {
+        require(keyHasPurpose(keccak256(msg.sender), ACTION_KEY), "Sender does not have action key");
+        _;
+    }
+
+    modifier onlyFundsManagement() {
+        require(keyHasPurpose(keccak256(msg.sender), FUNDS_MANAGEMENT), "Sender does not have funds key");
+        _;
+    }
+
+    constructor() public {
+        bytes32 _key = keccak256(msg.sender);
+        keys[_key].key = _key;
+        keys[_key].purpose = [MANAGEMENT_KEY];
+        keys[_key].keyType = 1;
+        keysByPurpose[MANAGEMENT_KEY].push(_key);
+        emit KeyAdded(_key, MANAGEMENT_KEY, 1);
+    }
+
+    function getKey(bytes32 _key)
+        public
+        view
+        returns(uint256[] purpose, uint256 keyType, bytes32 key)
+    {
+        return (keys[_key].purpose, keys[_key].keyType, keys[_key].key);
+    }
+
+    function getKeyPurpose(bytes32 _key)
+        public
+        view
+        returns(uint256[] purpose)
+    {
+        return (keys[_key].purpose);
+    }
+
+    function getKeysByPurpose(uint256 _purpose)
+        public
+        view
+        returns(bytes32[] _keys)
+    {
+        return keysByPurpose[_purpose];
+    }
+
+    function addKey(bytes32 _key, uint256 _purpose, uint256 _type)
+        public
+        onlyManagement
+        returns (bool success)
+    {
+        if (keyHasPurpose(_key, _purpose)) {
+            return true;
         }
+
+        keys[_key].key = _key;
+        keys[_key].purpose.push(_purpose);
+        keys[_key].keyType = _type;
+
+        keysByPurpose[_purpose].push(_key);
+
+        emit KeyAdded(_key, _purpose, _type);
+
+        return true;
     }
 
-    modifier allowedByPurpose(Purposes _purpose) {
-        require(accessorMap[msg.sender] & uint8(_purpose) != 0, "Not authorized");
-        _;
-    }
+    function approve(uint256 _id, bool _approve)
+        public
+        onlyAction
+        returns (bool success)
+    {
+        emit Approved(_id, _approve);
 
-    modifier checkPurpose(uint8 _purpose) {
-        require(_purpose > uint8(Purposes.NONE) && _purpose <= uint8(Purposes.ALL_PURPOSES), "Invalid purpose");
-        _;
-    }
-
-    /**
-     * Returns the purpose for an accessor, 0 if accessor isn't registered
-     */
-    function getAccessorPurpose(address _key) public view returns(uint8) {
-        return accessorMap[_key];
-    }
-
-    /**
-     * Adds an accessor with purpose
-     * @param _key Eth public key or contract address
-     * @param _purpose Purpose for accessor
-     * Requires KEY_MANAGEMENT purpose for msg.sender
-     * Emits AccessorUpdated or AccessorAdded
-     */
-    function addAccessor(address _key, uint8 _purpose) public allowedByPurpose(Purposes.KEY_MANAGEMENT) checkPurpose(_purpose) {
-        uint8 oldPurpose = accessorMap[_key];
-        accessorMap[_key] = _purpose;
-        if (oldPurpose != 0) {
-            emit AccessorUpdated(_key, oldPurpose, _purpose);
+        if (_approve == true) {
+            executions[_id].approved = true;
+            success = executions[_id].to.call(executions[_id].data, 0);
+            if (success) {
+                executions[_id].executed = true;
+                emit Executed(
+                    _id,
+                    executions[_id].to,
+                    executions[_id].value,
+                    executions[_id].data
+                );
+            } else {
+                emit ExecutionFailed(
+                    _id,
+                    executions[_id].to,
+                    executions[_id].value,
+                    executions[_id].data
+                );
+            }
+            return success;
         } else {
-            emit AccessorAdded(_key, _purpose);
+            executions[_id].approved = false;
         }
+        return true;
     }
 
-    /**
-     * Remove an accessor
-     * @param _key Eth public key or contract address
-     * Requires KEY_MANAGEMENT purpose for msg.sender
-     * Emits AccessorRemoved
-     */
-    function removeAccessor(address _key) public allowedByPurpose(Purposes.KEY_MANAGEMENT) {
-        uint8 purpose = accessorMap[_key];
-        delete accessorMap[_key];
-        emit AccessorRemoved(_key, purpose);
+    function execute(address _to, uint256 _value, bytes _data)
+        public
+        returns (uint256 executionId)
+    {
+        require(!executions[executionNonce].executed, "Already executed");
+        executions[executionNonce].to = _to;
+        executions[executionNonce].value = _value;
+        executions[executionNonce].data = _data;
+
+        emit ExecutionRequested(executionNonce, _to, _value, _data);
+
+        if (keyHasPurpose(keccak256(msg.sender), ACTION_KEY)) {
+            approve(executionNonce, true);
+        }
+
+        executionNonce++;
+        return executionNonce-1;
     }
 
-    /**
+    function removeKey(bytes32 _key, uint256 _purpose)
+        public
+        onlyManagement
+        returns (bool success)
+    {
+        require(keys[_key].key == _key, "No such key");
+
+        if (!keyHasPurpose(_key, _purpose)) {
+            return false;
+        }
+
+        uint256 arrayLength = keys[_key].purpose.length;
+        int index = -1;
+        for (uint i = 0; i < arrayLength; i++) {
+            if (keys[_key].purpose[i] == _purpose) {
+                index = int(i);
+                break;
+            }
+        }
+
+        if (index != -1) {
+            keys[_key].purpose[uint(index)] = keys[_key].purpose[arrayLength - 1];
+            delete keys[_key].purpose[arrayLength - 1];
+            keys[_key].purpose.length--;
+        }
+
+        uint256 purposesLen = keysByPurpose[_purpose].length;
+        for (uint j = 0; j < purposesLen; j++) {
+            if (keysByPurpose[_purpose][j] == _key) {
+                keysByPurpose[_purpose][j] = keysByPurpose[_purpose][purposesLen - 1];
+                delete keysByPurpose[_purpose][purposesLen - 1];
+                keysByPurpose[_purpose].length--;
+                break;
+            }
+        }
+
+        emit KeyRemoved(_key, _purpose, keys[_key].keyType);
+
+        return true;
+    }
+
+    function keyHasPurpose(bytes32 _key, uint256 _purpose)
+        public
+        view
+        returns(bool result)
+    {
+        if (keys[_key].key == 0) return false;
+        uint256 arrayLength = keys[_key].purpose.length;
+        for (uint i = 0; i < arrayLength; i++) {
+            if (keys[_key].purpose[i] == _purpose) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+   /**
      * Send all ether to msg.sender
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function withdraw() public allowedByPurpose(Purposes.FUNDS_MANAGEMENT) {
+    function withdraw() public onlyFundsManagement {
         msg.sender.transfer(address(this).balance);
     }
 
@@ -114,7 +221,7 @@ contract Identity {
      * @param _account recepient
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function transferEth(uint _amount, address _account) allowedByPurpose(Purposes.FUNDS_MANAGEMENT) public {
+    function transferEth(uint _amount, address _account) public onlyFundsManagement {
         require(_amount <= address(this).balance, "Amount should be less than total balance of the contract");
         require(_account != address(0), "must be valid address");
         _account.transfer(_amount);
@@ -140,7 +247,7 @@ contract Identity {
      * @param _token ERC20 contract address
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function withdrawTokens(address _token) public allowedByPurpose(Purposes.FUNDS_MANAGEMENT) {
+    function withdrawTokens(address _token) public onlyFundsManagement {
         require(_token != address(0));
         ERC20Basic token = ERC20Basic(_token);
         uint balance = token.balanceOf(this);
@@ -155,7 +262,7 @@ contract Identity {
      * @param _amount amount in 
      * Requires FUNDS_MANAGEMENT purpose for msg.sender
      */
-    function transferTokens(address _token, address _to, uint _amount) public allowedByPurpose(Purposes.FUNDS_MANAGEMENT) {
+    function transferTokens(address _token, address _to, uint _amount) public onlyFundsManagement {
         require(_token != address(0));
         require(_to != address(0));
         ERC20Basic token = ERC20Basic(_token);
@@ -165,4 +272,5 @@ contract Identity {
     }
 
     function () public payable {}
+
 }
