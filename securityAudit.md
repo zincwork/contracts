@@ -25,3 +25,39 @@ owner = address(0);
 ## Constant functions 
 
 The function is declared as <code> constant </code>. Currently, for functions the <code> constant </code> modifier is a synonym for <code> view </code> (which is the preferred option). Consider using <code> view </code> for funcitons and <code> constant </code> for state variables.
+
+### Examples from Chaingear contracts
+
+**Identity.sol | Line: 9 | Severity: 0**
+
+```solidity
+
+function balanceOf(address _who) public constant returns (uint256);
+
+```
+
+**ERC725.sol | Line: 24 | Severity: 0**
+
+
+```solidity
+
+function getKey(bytes32 _key) public constant returns(uint256[] purpose, uint256 keyType, bytes32 key);
+
+```
+
+**ERC725.sol | Line: 25 | Severity: 0**
+
+```solidity
+
+function getKeyPurpose(bytes32 _key) public constant returns(uint256[] purpose);
+
+```
+
+**ERC725.sol | Line: 26 | Severity: 0**
+
+```solidity
+
+function getKeysByPurpose(uint256 _purpose) public constant returns(bytes32[] keys);
+
+```
+
