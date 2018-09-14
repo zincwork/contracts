@@ -22,3 +22,6 @@ owner = address(0);
 
 ```
 
+## Constant functions 
+
+The function is declared as <code> constant </code>. Currently, for functions the <code> constant </code> modifier is a synonym for <code> view </code> (which is the preferred option). Consider using <code> view </code> for funcitons and <code> constant </code> for state variables.
