@@ -829,9 +829,19 @@ emit ClaimRemoved(subject, issuer, id, key, now);
 
 ## Unchecked low-level call 
 
+Expect calls to external contract to fail. When sending ether, check for the return value and handle errors. The recommended way of doing ether transfers is <code> transfer </code>.
+External calls may execute malicious code in that contract or any other contract that it depends upon. As such, every external call should be treated as a potential security risk.
+
+### Example from Zinc contracts
+
+**Identity.sol | Line: 111  | Severity: 3**
+
+```solidity
+
+success = executions[_id].to.call(executions[_id].data, 0);
+
+```
 
 
 ## Unchecked math
-
-## Implicit visibility level
 
