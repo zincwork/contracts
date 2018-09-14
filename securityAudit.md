@@ -4,7 +4,7 @@
 
 The audit isn’t a legal document that verifies that the code is secure. Nobody can assure that the code won’t have future bugs or vulnerabilities.  
 
-The scope of this audit was to analyze and document CHAINGEAR’s smart contract codebase for quality, security and correctness. This audit guarantees that your code has been revised by an expert and it’s secure. 
+The scope of this audit was to analyze and document Zinc’s smart contract codebase for quality, security and correctness. This audit guarantees that your code has been revised by an expert and it’s secure. 
 
 # Issues found 
 
@@ -12,7 +12,7 @@ The scope of this audit was to analyze and document CHAINGEAR’s smart contract
 
 The contract contains unknown address. This address might be used for some malicious activity. Please check hardcoded address and it's usage.
 
-### Examples from Chaingear contracts
+### Examples from Zinc contracts
 
 **Ownable.sol | Line: 45 | Severity: 1**
 
@@ -26,7 +26,7 @@ owner = address(0);
 
 The function is declared as <code> constant </code>. Currently, for functions the <code> constant </code> modifier is a synonym for <code> view </code> (which is the preferred option). Consider using <code> view </code> for funcitons and <code> constant </code> for state variables.
 
-### Examples from Chaingear contracts
+### Examples from Zinc contracts
 
 **Identity.sol | Line: 9 | Severity: 0**
 
@@ -72,7 +72,7 @@ This pattern is experimental and can report false issues. This pattern might be 
 
 To avoid this vulnerability, you can use the Checks-Effects-Interactions pattern.
 
-### Examples from Chaingear contracts
+### Examples from Zinc contracts
 
 
 **Identity.sol | Line: 139 | Severity: 1**
@@ -167,7 +167,7 @@ The attack described above is possible because approve method overrides current 
 Because the described attack allows an attacker to transfer at most N + M tokens when allowance is being changed from N to M, then changing allowance from N to 0 and then from 0 to M seems quite safe.  Token owner just needs to make sure that first transaction actually changed allowance from N to 0, i.e. that the spender didn't manage to transfer some of N allowed tokens before first transaction was mined.  Unfortunately, such checking does not seem to be possible via standard Web3 API, because to do the check one needs to be able to analyze changes in the storage of smart contract made by particular transactions, including internal transactions.  Though, such checking is still possible using advanced blockchain explorers such as EtherCamp.
 Another way to mitigate the threat is to approve token transfers only to smart contracts with verified source code that does not contain logic for performing attacks like described above, and to accounts owned by the people you may trust.
 
-### Examples from Chaingear contracts
+### Examples from Zinc contracts
 
 **StandardToken.sol | Lines: 88 - 92 | Severity: 2**
 
@@ -185,7 +185,7 @@ function approve(address _spender, uint256 _value) public returns (bool) {
 
 The contract does not have <code> payable </code> fallback. All attempts to <code> transfer </code> or <code> send </code> ether to this contract will be reverted.
 
-### Examples from Chaingear contracts
+### Examples from Zinc contracts
 
 **Encoder.sol | Lines: 3 - 57 | Severity: 1**
 
@@ -685,7 +685,7 @@ pragma solidity 0.4.17; // good : compiles w 0.4.17 only
 It is recommended to follow the latter example, as future compiler versions may handle certain language constructions in a way the developer did not foresee.
 
 
-### Examples from Chaingear contracts
+### Examples from Zinc contracts
 
 **Encoder.sol | Line: 1  | Severity: 2**
 
@@ -738,7 +738,7 @@ This pattern is experimental and can report false issues. This pattern might als
 
 Note that re-entrancy is not only an effect of Ether transfer but of any function call on another contract. Furthermore, you also have to take multi-contract situations into account. A called contract could modify the state of another contract you depend on.
 
-### Examples from Chaingear contracts
+### Examples from Zinc contracts
 
 **ZincAccessor.sol | Line: 72  | Severity: 3**
 
@@ -805,12 +805,31 @@ if (keys[_key].key == 0) return false;
 
 ```
 
-
 ## Timestamp dependance
 
+The timestamp of the block can be slightly manipulated by the miner. One should not use timestamp's exact value for critical components of the contract.
 
+### Examples from Zinc contracts
+
+**Registry.sol | Line: 32  | Severity: 2**
+
+```solidity
+
+emit ClaimSet(subject, issuer, id, key, data, now);
+
+```
+
+**Registry.sol | Line: 39  | Severity: 2**
+
+```solidity
+
+emit ClaimRemoved(subject, issuer, id, key, now);
+
+```
 
 ## Unchecked low-level call 
+
+
 
 ## Unchecked math
 
