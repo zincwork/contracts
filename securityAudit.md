@@ -727,10 +727,88 @@ pragma solidity ^0.4.22;
 
 ```
 
-
 ## Reentrancy 
 
+Any interaction from a contract (A) with another contract (B) and any transfer of Ether hands over control to that contract (B). This makes it possible for B to call back into A before this interaction is completed.
+
+This pattern is experimental and can report false issues. This pattern might also be triggered when
+
+- accessing struct's field
+- using enum's element
+
+Note that re-entrancy is not only an effect of Ether transfer but of any function call on another contract. Furthermore, you also have to take multi-contract situations into account. A called contract could modify the state of another contract you depend on.
+
+### Examples from Chaingear contracts
+
+**ZincAccessor.sol | Line: 72  | Severity: 3**
+
+```solidity
+
+id.addKey(keccak256(_userAddress), id.MANAGEMENT_KEY(), 1);
+
+```
+
+**ZincAccessor.sol | Line: 115  | Severity: 3**
+
+```solidity
+
+require(id.keyHasPurpose(keccak256(_userAddress), id.MANAGEMENT_KEY()));
+
+```
+
+**ZincAccessor.sol | Line: 153  | Severity: 3**
+
+```solidity
+
+ keccak256(abi.encodePacked("Remove 0x", encodeAddress(_key), " from 0x", encodeAddress(_idContract), " with purpose ", encodeUInt(_purpose))) ==
+
+```
+
+**ZincAccessor.sol | Line: 157  | Severity: 3**
+
+```solidity
+
+require(id.keyHasPurpose(keccak256(_userAddress), id.MANAGEMENT_KEY()));
+
+```
+
+**Identity.sol | Line: 51  | Severity: 3**
+
+```solidity
+
+keys[_key].key = _key;
+
+```
+
+**Identity.sol | Line: 111  | Severity: 3**
+
+```solidity
+
+success = executions[_id].to.call(executions[_id].data, 0);
+
+```
+
+**Identity.sol | Line: 176  | Severity: 3**
+
+```solidity
+
+delete keys[_key].purpose[arrayLength - 1];
+
+```
+
+
+**Identity.sol | Line: 200  | Severity: 3**
+
+```solidity
+
+if (keys[_key].key == 0) return false;
+
+```
+
+
 ## Timestamp dependance
+
+
 
 ## Unchecked low-level call 
 
