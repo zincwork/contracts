@@ -677,7 +677,53 @@ Solidity source files indicate the versions of the compiler they can be compiled
 
 ```solidity
 
+pragma solidity ^0.4.17; // bad: compiles w 0.4.17 and above
+pragma solidity 0.4.17; // good : compiles w 0.4.17 only
 
+```
+
+It is recommended to follow the latter example, as future compiler versions may handle certain language constructions in a way the developer did not foresee.
+
+
+### Examples from Chaingear contracts
+
+**Encoder.sol | Line: 1  | Severity: 2**
+
+```solidity
+
+pragma solidity ^0.4.24;
+
+```
+
+**Migrations.sol | Line: 2  | Severity: 2**
+
+```solidity
+
+pragma solidity ^0.4.23;
+
+```
+
+**SafeMath.sol | Line: 1  | Severity: 2**
+
+```solidity
+
+pragma solidity ^0.4.24;
+
+```
+
+**StandardToken.sol | Line: 1  | Severity: 2**
+
+```solidity
+
+pragma solidity ^0.4.24;
+
+```
+
+**Identity.sol | Line: 4  | Severity: 2**
+
+```solidity
+
+pragma solidity ^0.4.22;
 
 ```
 
