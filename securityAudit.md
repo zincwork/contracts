@@ -61,3 +61,23 @@ function getKeysByPurpose(uint256 _purpose) public constant returns(bytes32[] ke
 
 ```
 
+## DoS by external function call in require
+
+## Using the approve function of the ERC-20 standard 
+
+## Costly loop
+
+## No payable fallback function 
+
+## Compiler version not fixed
+
+## Reentrancy 
+
+## Timestamp dependance
+
+## Unchecked low-level call 
+
+## Unchecked math
+
+## Implicit visibility level
+
