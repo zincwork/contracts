@@ -845,3 +845,75 @@ success = executions[_id].to.call(executions[_id].data, 0);
 
 ## Unchecked math
 
+Solidity is prone to integer over- and underflow. Overflow leads to unexpected effects and can lead to loss of funds if exploited by a malicious account.
+
+### Examples from Zinc contracts
+
+**Identity.sol | Line: 175  | Severity: 1**
+
+```solidity
+
+keys[_key].purpose[uint(index)] = keys[_key].purpose[arrayLength - 1];
+
+```
+
+**Identity.sol | Line: 176  | Severity: 1**
+
+```solidity
+
+keys[_key].purpose[uint(index)] = keys[_key].purpose[arrayLength - 1];
+
+```
+
+**Identity.sol | Line: 177  | Severity: 1**
+
+```solidity
+
+keys[_key].purpose.length--;
+
+```
+
+
+**Identity.sol | Line: 183  | Severity: 1**
+
+```solidity
+
+keysByPurpose[_purpose][j] = keysByPurpose[_purpose][purposesLen - 1];
+
+```
+
+
+**Identity.sol | Line: 184  | Severity: 1**
+
+```solidity
+
+delete keysByPurpose[_purpose][purposesLen - 1];
+
+```
+
+**Encoder.sol | Line: 39  | Severity: 1**
+
+```solidity
+
+byte b = byte(uint8(uint(_address) / (2**(8*(19 - i)))));
+
+```
+
+**Encoder.sol | Line: 27  | Severity: 1**
+
+```solidity
+
+result = abi.encodePacked(uintToChar(uint8(x % 10)), result);
+
+```
+
+**Encoder.sol | Line: 9  | Severity: 1**
+
+```solidity
+
+_uint -= 9;
+
+```
+
+
+
