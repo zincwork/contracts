@@ -1,6 +1,6 @@
 # Description
 
-The contract architecture is inspired by ERC780 & ERC725 with a registry, the 'ZincAccessor' and individual user contracts 'UserIdentity'.
+The contract architecture is inspired by ERC780 & ERC725 with a claims registry and individual user contracts.
 
 The philosophy of the achitecture is that each user will have an Identity Contract which only they control and can revoke permissions of other apps as they wish. The idea is that different dApp contracts can ask the user for permission to interact with their identity contract and the user can allow for certain permissions. The dApp contract’s address gets added to the users Identity Contract. We folllowed the upgradability ethos that the user can decide to stick with the current logic or upgrade and still use the system. 
 
